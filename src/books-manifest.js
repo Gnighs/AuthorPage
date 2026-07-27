@@ -1,5 +1,5 @@
 window.booksManifest = {
-  "generatedAt": "2026-07-27T14:54:05.577393+00:00",
+  "generatedAt": "2026-07-27T14:58:42.172925+00:00",
   "items": [
     {
       "title": "Hiccups Against Godhood",

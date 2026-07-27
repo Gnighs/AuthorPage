@@ -17,7 +17,7 @@ const archiveManifest = window.archiveManifest;
 const rootCatalog = archiveManifest.root;
 const mobileViewport = window.matchMedia("(max-width: 640px)");
 const localFileProtocol = window.location.protocol === "file:";
-const archiveBasePath = "l9archive";
+const archiveBasePath = "oasl9";
 let activeSummaryView = "station";
 
 const stationStatusItems = [

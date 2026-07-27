@@ -8,8 +8,8 @@ from urllib.parse import quote, urlparse
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 SRC_DIR = PROJECT_ROOT / "src"
-DOCUMENTS_DIR = PROJECT_ROOT / "l9archive" / "documents"
-DOCUMENTS_PUBLIC_PATH = "l9archive/documents"
+DOCUMENTS_DIR = PROJECT_ROOT / "oasl9" / "documents"
+DOCUMENTS_PUBLIC_PATH = "oasl9/documents"
 ROOT_CATALOG_PATH = DOCUMENTS_DIR / "collections.json"
 ARCHIVE_OUTPUT_PATH = SRC_DIR / "archive-manifest.js"
 BOOKS_DIR = PROJECT_ROOT / "books"
