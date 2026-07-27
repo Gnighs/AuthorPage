@@ -34,13 +34,14 @@ body {
 }
 
 body.author-site {
-  --author-bg: #f7f3eb;
-  --author-text: #20201d;
-  --author-muted: #686056;
-  --author-line: #d8cec0;
-  --author-panel: #fffaf2;
-  --author-accent: #4a6741;
-  --author-accent-dark: #263a25;
+  color-scheme: light;
+  --author-bg: #ffffff;
+  --author-text: #111311;
+  --author-muted: #5d6460;
+  --author-line: #d8ddda;
+  --author-panel: #f6f8f7;
+  --author-accent: #4f6f59;
+  --author-accent-dark: #203928;
   background: var(--author-bg);
   color: var(--author-text);
   font-family: Georgia, "Times New Roman", serif;
@@ -168,7 +169,7 @@ a {
 .primary-link,
 .newsletter-form button {
   background: var(--author-accent-dark);
-  color: #fffaf2;
+  color: #ffffff;
 }
 
 .secondary-link {
@@ -207,6 +208,124 @@ a {
 .author-list {
   display: grid;
   gap: 28px;
+}
+
+.book-list-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.book-list-shell h2 {
+  margin: 0;
+  color: var(--author-text);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 500;
+}
+
+.book-list {
+  display: grid;
+  gap: 14px;
+  max-height: min(760px, 70vh);
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-color: var(--author-accent) transparent;
+}
+
+.book-item {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  min-height: 184px;
+  padding: 18px;
+  border: 1px solid var(--author-line);
+  border-radius: 6px;
+  background: var(--author-panel);
+  color: var(--author-text);
+  text-decoration: none;
+}
+
+.book-item.published {
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.book-item.published:hover,
+.book-item.published:focus-visible {
+  border-color: var(--author-accent);
+  box-shadow: 0 16px 36px rgba(17, 19, 17, 0.08);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.book-item.wip {
+  cursor: default;
+}
+
+.book-cover {
+  position: relative;
+  display: block;
+  width: 132px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--author-line);
+  background: #e9eeeb;
+  box-shadow: 0 10px 24px rgba(17, 19, 17, 0.12);
+}
+
+.book-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-watermark {
+  position: absolute;
+  inset: auto -34px 34px;
+  display: grid;
+  place-items: center;
+  height: 34px;
+  background: rgba(17, 19, 17, 0.82);
+  color: #ffffff;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  transform: rotate(-18deg);
+}
+
+.book-details {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.book-details strong {
+  color: var(--author-text);
+  font-size: clamp(1.45rem, 3vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1.08;
+}
+
+.book-details span {
+  color: var(--author-accent-dark);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.book-details p,
+.book-empty {
+  max-width: 680px;
+  margin: 0;
+  color: var(--author-muted);
+  font-size: 1.02rem;
+  line-height: 1.65;
 }
 
 .newsletter-form {
@@ -1031,6 +1150,37 @@ button.catalog-row {
 
   .newsletter-form button {
     width: 100%;
+  }
+
+  .book-list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .book-item {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 14px;
+    min-height: 138px;
+    padding: 12px;
+  }
+
+  .book-cover {
+    width: 92px;
+  }
+
+  .book-details {
+    gap: 5px;
+  }
+
+  .book-details strong {
+    font-size: 1.2rem;
+  }
+
+  .book-details p,
+  .book-empty {
+    font-size: 0.92rem;
+    line-height: 1.45;
   }
 
   .station-header,

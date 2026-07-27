@@ -3,10 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f7f3eb">
+    <meta name="theme-color" content="#ffffff">
     <title>Books | Pau Roca Pardo</title>
     <link rel="icon" href="../favicon.ico" sizes="any">
     <link rel="stylesheet" href="../src/styles.css">
+    <script src="../src/books-manifest.js" defer></script>
+    <script src="../src/books.js" defer></script>
   </head>
   <body class="author-site">
     <header class="author-header">
@@ -27,12 +29,9 @@
         <p>Publication details, reading order, and project notes will live here as they become ready to share.</p>
       </section>
 
-      <section class="author-list">
-        <article>
-          <span>In development</span>
-          <h2>Untitled novel project</h2>
-          <p>A speculative fiction project connected to the worlds, languages, and records surfaced in the L9 Archive.</p>
-        </article>
+      <section class="book-list-shell" aria-labelledby="book-list-title">
+        <h2 id="book-list-title">Book List</h2>
+        <div id="book-list" class="book-list" aria-live="polite"></div>
       </section>
     </main>
 
