@@ -386,6 +386,12 @@ a {
   text-transform: none;
 }
 
+.book-details .book-action {
+  color: var(--author-accent-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
 .book-details p,
 .book-empty {
   margin: 0;
@@ -1257,6 +1263,10 @@ button.catalog-row {
   .book-empty {
     font-size: 0.92rem;
     line-height: 1.45;
+  }
+
+  .book-details p {
+    display: none;
   }
 
   .station-header,

@@ -59,6 +59,13 @@ function createBookItem(book, options = {}) {
 
   details.append(title, series, date, description);
 
+  if (book.published) {
+    const action = document.createElement("span");
+    action.className = "book-action";
+    action.textContent = "Buy on Amazon";
+    details.append(action);
+  }
+
   item.append(createCover(book, options), details);
   return item;
 }
