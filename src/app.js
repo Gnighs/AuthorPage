@@ -122,8 +122,13 @@ function pathParts() {
     .filter(Boolean);
 
   if (parts[0] === "src" && (!parts[1] || parts[1] === "index.html")) return [];
+  if (parts[0] === archiveBasePath) {
+    const archiveParts = parts.slice(1);
+    return archiveParts[archiveParts.length - 1] === "index.html"
+      ? archiveParts.slice(0, -1)
+      : archiveParts;
+  }
   if (parts[parts.length - 1] === "index.html") return parts.slice(0, -1);
-  if (parts[0] === archiveBasePath) return parts.slice(1);
   if (parts[0] === "browse") return parts.slice(1);
   return parts;
 }
