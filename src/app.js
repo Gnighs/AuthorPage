@@ -17,6 +17,7 @@ const archiveManifest = window.archiveManifest;
 const rootCatalog = archiveManifest.root;
 const mobileViewport = window.matchMedia("(max-width: 640px)");
 const localFileProtocol = window.location.protocol === "file:";
+const archiveBasePath = "l9archive";
 let activeSummaryView = "station";
 
 const stationStatusItems = [
@@ -122,6 +123,7 @@ function pathParts() {
 
   if (parts[0] === "src" && (!parts[1] || parts[1] === "index.html")) return [];
   if (parts[parts.length - 1] === "index.html") return parts.slice(0, -1);
+  if (parts[0] === archiveBasePath) return parts.slice(1);
   if (parts[0] === "browse") return parts.slice(1);
   return parts;
 }
@@ -156,7 +158,10 @@ function getRoute() {
 }
 
 function routeUrl(path) {
-  return path.length ? `/${path.map(encodeURIComponent).join("/")}` : "/";
+  const archiveRoot = `/${archiveBasePath}`;
+  return path.length
+    ? `${archiveRoot}/${path.map(encodeURIComponent).join("/")}`
+    : `${archiveRoot}/`;
 }
 
 function routeHash(path) {
@@ -205,7 +210,11 @@ function itemAction(item) {
 
 function fileHref(file) {
   if (!localFileProtocol) return file.href;
-  const prefix = window.location.pathname.includes("/src/") ? "../" : "./";
+  const prefix = window.location.pathname.includes("/src/")
+    ? "../"
+    : window.location.pathname.includes(`/${archiveBasePath}/`)
+      ? "../"
+      : "./";
   return `${prefix}${file.path}`;
 }
 

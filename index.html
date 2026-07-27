@@ -3,89 +3,51 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#09110f">
-    <title>Orbital Archive Station L-9</title>
+    <meta name="theme-color" content="#f7f3eb">
+    <title>Pau Roca Pardo</title>
     <link rel="icon" href="./favicon.ico" sizes="any">
     <link rel="stylesheet" href="./src/styles.css">
-    <script src="./src/archive-manifest.js" defer></script>
-    <script src="./src/app.js" defer></script>
   </head>
-  <body>
-    <div class="scanline" aria-hidden="true"></div>
-
-    <header class="station-header">
-      <div class="station-mark" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <div>
-        <p class="eyebrow">Public Access Terminal</p>
-        <h1><span>Orbital Archive</span> <span>Station L-9</span></h1>
-      </div>
+  <body class="author-site">
+    <header class="author-header">
+      <a class="author-name" href="./">Pau Roca Pardo</a>
+      <nav class="author-nav" aria-label="Primary navigation">
+        <a aria-current="page" href="./">Home</a>
+        <a href="./books/">Books</a>
+        <a href="./about/">About</a>
+        <a href="./newsletter/">Newsletter</a>
+        <a href="./l9archive/">L9 Archive</a>
+      </nav>
     </header>
 
-    <section class="station-intro" aria-label="Archive notice">
-      <p class="header-copy">
-        This archive is maintained by INES, the Integrated Neural Expert System, aboard Orbital Archive
-        Station L-9, currently orbiting New Nova Terra. All records are kept in accordance with the archival and
-        validation standards of the Senate Office of Interstellar Documentation. Most records remain classified
-        pending verification, jurisdictional review, or authorization for public release.
-      </p>
-    </section>
-
-    <main class="archive-shell">
-      <section class="status-summary" aria-label="Archive summary">
-        <div class="summary-switch" aria-label="Summary view">
-          <button type="button" aria-pressed="true" data-summary-view="station">Station Status</button>
-          <button type="button" aria-pressed="false" data-summary-view="files">File Report</button>
-        </div>
-        <div id="status-panel" class="status-panel">
-          <div>
-            <span class="status-label">Archival Integrity</span>
-            <strong>Moderate</strong>
-          </div>
-          <div>
-            <span class="status-label">Clearance</span>
-            <strong>Public-ish</strong>
-          </div>
-          <div>
-            <span class="status-label">Interface Language</span>
-            <strong>Senate Standard Shasvin</strong>
-          </div>
+    <main class="author-main">
+      <section class="author-hero">
+        <p class="author-kicker">Author Newsletter</p>
+        <h1>Pau Roca Pardo</h1>
+        <p>
+          Fiction, worldbuilding notes, and dispatches from works in progress. This site is the future home for
+          books, newsletter updates, and the L9 Archive.
+        </p>
+        <div class="author-actions">
+          <a class="primary-link" href="./newsletter/">Read the newsletter</a>
+          <a class="secondary-link" href="./l9archive/">Enter the L9 Archive</a>
         </div>
       </section>
 
-      <nav id="navigation-bar" class="navigation-bar" aria-label="Archive navigation" hidden>
-        <button id="back-button" class="ghost-button" type="button">← Back</button>
-        <div id="breadcrumbs" class="breadcrumbs"></div>
-      </nav>
-
-      <section id="directory-section" aria-labelledby="sections-title">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow" id="directory-kicker">Directory</p>
-            <h2 id="sections-title">Archive Divisions</h2>
-          </div>
-          <p id="generation-stamp" class="generation-stamp"></p>
+      <section class="author-section">
+        <div>
+          <p class="author-kicker">Current Project</p>
+          <h2>Stories built from languages, histories, and unreliable records.</h2>
         </div>
-        <div id="section-grid" class="section-grid"></div>
-      </section>
-
-      <section id="document-panel" class="document-panel" aria-labelledby="documents-title" hidden>
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow" id="active-section-kicker">Index Contents</p>
-            <h2 id="documents-title">Selected Archive</h2>
-          </div>
-        </div>
-        <div id="document-list" class="document-list"></div>
+        <p>
+          The full author site is still being assembled. For now, the archive remains available as an in-world
+          companion space while the book and newsletter pages take shape.
+        </p>
       </section>
     </main>
 
-    <footer class="site-footer">
+    <footer class="author-footer">
       <p>© 2026 Pau Roca Pardo. All rights reserved.</p>
-      <p>All website content, archival documents, and PDF files are original works owned by Pau Roca Pardo.</p>
     </footer>
   </body>
 </html>
