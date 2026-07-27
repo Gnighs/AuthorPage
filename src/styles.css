@@ -44,6 +44,8 @@ body.author-site {
   --author-accent-dark: #203928;
   background: var(--author-bg);
   color: var(--author-text);
+  display: grid;
+  grid-template-rows: auto auto minmax(min-content, 1fr);
   font-family: Georgia, "Times New Roman", serif;
 }
 
@@ -205,6 +207,14 @@ a {
   max-width: 800px;
 }
 
+.about-heading {
+  max-width: none;
+}
+
+.about-heading p {
+  max-width: none;
+}
+
 .author-list {
   display: grid;
   gap: 28px;
@@ -325,6 +335,13 @@ a {
   text-transform: uppercase;
 }
 
+.book-details .book-date {
+  color: var(--author-muted);
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-transform: none;
+}
+
 .book-details p,
 .book-empty {
   margin: 0;
@@ -375,6 +392,7 @@ a {
 }
 
 .author-footer {
+  align-self: end;
   padding: 24px 0 36px;
   border-top: 1px solid var(--author-line);
 }

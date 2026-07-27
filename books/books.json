@@ -2,11 +2,12 @@
   {
     "title": "Hiccups Against Godhood",
     "series": "The Malamelo Collection",
-    "shortDescription": "test",
+    "shortDescription": "When a mysterious potion causes Malamelo, the sea behemoth carrying a towering city across the ocean, to hiccup with city-shaking force, Beles must find an antidote before her home collapses—or someone ties the mess back to her.",
     "imageUrl": "img/wip-cover.svg",
     "highlightColor": "#dbeafe",
     "amazonUrl": "https://www.amazon.com/",
-    "published": true
+    "published": true,
+    "date": "2027"
   },
   {
     "title": "Untitled Novel Project",
@@ -15,6 +16,7 @@
     "imageUrl": "img/wip-cover.svg",
     "highlightColor": "#fef3c7",
     "amazonUrl": "",
-    "published": false
+    "published": false,
+    "date": "Unknown"
   }
 ]

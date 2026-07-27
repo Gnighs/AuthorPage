@@ -8,7 +8,8 @@ from urllib.parse import quote, urlparse
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 SRC_DIR = PROJECT_ROOT / "src"
-DOCUMENTS_DIR = PROJECT_ROOT / "documents"
+DOCUMENTS_DIR = PROJECT_ROOT / "l9archive" / "documents"
+DOCUMENTS_PUBLIC_PATH = "l9archive/documents"
 ROOT_CATALOG_PATH = DOCUMENTS_DIR / "collections.json"
 ARCHIVE_OUTPUT_PATH = SRC_DIR / "archive-manifest.js"
 BOOKS_DIR = PROJECT_ROOT / "books"
@@ -276,7 +277,11 @@ def load_files(index_dir):
 
 
 def href_for(path_parts, relative_path):
-    parts = ["documents", *path_parts, *Path(relative_path).parts]
+    parts = [
+        *DOCUMENTS_PUBLIC_PATH.split("/"),
+        *path_parts,
+        *Path(relative_path).parts,
+    ]
     return "/" + "/".join(quote(part) for part in parts)
 
 
@@ -315,7 +320,7 @@ def normalize_file(
     linked_file_exists = bool(relative_path) and (index_dir / relative_path).is_file()
     is_available = linked_file_exists and status != "Classified"
     document_path = (
-        "/".join(["documents", *path_parts, relative_path])
+        "/".join([DOCUMENTS_PUBLIC_PATH, *path_parts, relative_path])
         if relative_path
         else ""
     )
@@ -520,6 +525,7 @@ def normalize_book(raw_book, index, source):
     series = str(raw_book.get("series") or "").strip()
     short_description = str(raw_book.get("shortDescription") or "").strip()
     published = bool(raw_book.get("published", False))
+    date = str(raw_book.get("date") or "Unknown").strip()
     image_url = validate_book_url(raw_book.get("imageUrl"), source, "imageUrl")
     highlight_color = str(raw_book.get("highlightColor") or "#4f6f59").strip()
     amazon_url = validate_book_url(
@@ -538,6 +544,8 @@ def normalize_book(raw_book, index, source):
         raise SystemExit(
             f"Book '{title}' in {source} is missing shortDescription."
         )
+    if not date:
+        raise SystemExit(f"Book '{title}' in {source} is missing date.")
     if not image_url:
         raise SystemExit(f"Book '{title}' in {source} is missing imageUrl.")
     if not highlight_color:
@@ -547,6 +555,7 @@ def normalize_book(raw_book, index, source):
         "title": title,
         "series": series,
         "shortDescription": short_description,
+        "date": date,
         "imageUrl": image_url,
         "highlightColor": highlight_color,
         "amazonUrl": amazon_url if published else "",

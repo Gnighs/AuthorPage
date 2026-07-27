@@ -43,10 +43,14 @@ function createBookItem(book) {
   const series = document.createElement("span");
   series.textContent = book.series;
 
+  const date = document.createElement("span");
+  date.className = "book-date";
+  date.textContent = `${book.published ? "Publication date" : "Release date"}: ${book.date || "Unknown"}`;
+
   const description = document.createElement("p");
   description.textContent = book.shortDescription;
 
-  details.append(title, series, description);
+  details.append(title, series, date, description);
 
   item.append(createCover(book), details);
   return item;
