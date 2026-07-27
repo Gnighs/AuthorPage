@@ -7,6 +7,9 @@
     <title>Pau Roca-Pardo</title>
     <link rel="icon" href="./favicon.ico" sizes="any">
     <link rel="stylesheet" href="./src/styles.css">
+    <script src="./src/clean-url.js" defer></script>
+    <script src="./src/books-manifest.js" defer></script>
+    <script src="./src/books.js" defer></script>
   </head>
   <body class="author-site">
     <header class="author-header">
@@ -16,33 +19,34 @@
         <a href="./books/index.html">Books</a>
         <a href="./about/index.html">About</a>
         <a href="./newsletter/index.html">Newsletter</a>
-        <a href="./l9archive/index.html" target="_blank" rel="noopener">L9 Archive</a>
+        <a href="./l9archive/index.html" target="_blank" rel="noopener">OAS L-9</a>
       </nav>
     </header>
 
     <main class="author-main">
-      <section class="author-hero">
+      <section class="author-hero home-hero">
         <p class="author-kicker">Author Newsletter</p>
         <h1>Pau Roca-Pardo</h1>
         <p>
-          Fiction, worldbuilding notes, and dispatches from works in progress. This site is the future home for
-          books, newsletter updates, and the L9 Archive.
+          Hello! Here you can find all of my work, past or future. You can also learn about me and, if you are feeling adventurous, you can explore some files recovered from Orbital Archive Station L-9, currently orbiting New Nova Terra.
         </p>
         <div class="author-actions">
           <a class="primary-link" href="./newsletter/index.html">Read the newsletter</a>
-          <a class="secondary-link" href="./l9archive/index.html" target="_blank" rel="noopener">Enter the L9 Archive</a>
+          <a class="secondary-link" href="./l9archive/index.html" target="_blank" rel="noopener">Enter OAS L-9</a>
         </div>
       </section>
 
-      <section class="author-section">
-        <div>
+      <section class="home-book-highlights" aria-label="Featured books">
+        <article class="home-book-feature" data-home-book-feature="latest" hidden>
+          <p class="author-kicker">Published Fiction</p>
+          <h2>Latest Release</h2>
+          <div id="latest-release-card"></div>
+        </article>
+        <article class="home-book-feature" data-home-book-feature="current" hidden>
           <p class="author-kicker">Current Project</p>
-          <h2>Stories built from languages, histories, and unreliable records.</h2>
-        </div>
-        <p>
-          The full author site is still being assembled. For now, the archive remains available as an in-world
-          companion space while the book and newsletter pages take shape.
-        </p>
+          <h2>Current Project</h2>
+          <div id="current-project-card"></div>
+        </article>
       </section>
     </main>
 

@@ -54,7 +54,7 @@ DEFAULT_BOOKS = [
         "series": "Works in Progress",
         "shortDescription": (
             "A speculative fiction project connected to the worlds, "
-            "languages, and records surfaced in the L9 Archive."
+            "languages, and records surfaced in the OAS L-9."
         ),
         "imageUrl": "img/wip-cover.svg",
         "highlightColor": "#4f6f59",
@@ -525,6 +525,7 @@ def normalize_book(raw_book, index, source):
     series = str(raw_book.get("series") or "").strip()
     short_description = str(raw_book.get("shortDescription") or "").strip()
     published = bool(raw_book.get("published", False))
+    current = bool(raw_book.get("current", False))
     date = str(raw_book.get("date") or "Unknown").strip()
     image_url = validate_book_url(raw_book.get("imageUrl"), source, "imageUrl")
     highlight_color = str(raw_book.get("highlightColor") or "#4f6f59").strip()
@@ -560,6 +561,7 @@ def normalize_book(raw_book, index, source):
         "highlightColor": highlight_color,
         "amazonUrl": amazon_url if published else "",
         "published": published,
+        "current": current,
     }
 
 

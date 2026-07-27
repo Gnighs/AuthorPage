@@ -7,16 +7,18 @@
     "highlightColor": "#dbeafe",
     "amazonUrl": "https://www.amazon.com/",
     "published": true,
-    "date": "2027"
+    "date": "2027",
+    "current": false
   },
   {
     "title": "Untitled Novel Project",
     "series": "The Malamelo Collection",
-    "shortDescription": "A speculative fiction project connected to the worlds, languages, and records surfaced in the L9 Archive.",
+    "shortDescription": "A speculative fiction project connected to the worlds, languages, and records surfaced in the OAS L-9.",
     "imageUrl": "img/wip-cover.svg",
     "highlightColor": "#fef3c7",
     "amazonUrl": "",
     "published": false,
-    "date": "Unknown"
+    "date": "Unknown",
+    "current": true
   }
 ]

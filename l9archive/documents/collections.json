@@ -21,7 +21,7 @@
       "includeCodeInDescendants": true,
       "title": "Military Records",
       "description": "Research and operational documents related to military activities.",
-      "status": "Cleared",
+      "status": "Classified",
       "kicker": "Military Directory",
       "countLabel": "military archives",
       "emptyTitle": "Military records are not available through this terminal.",

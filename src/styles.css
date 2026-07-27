@@ -16,10 +16,24 @@
   box-sizing: border-box;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 html,
 body {
   max-width: 100%;
   overflow-x: hidden;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 body {
@@ -111,6 +125,10 @@ a {
   max-width: 780px;
 }
 
+.home-hero {
+  max-width: none;
+}
+
 .author-kicker,
 .author-list span,
 .newsletter-form label,
@@ -142,6 +160,10 @@ a {
   color: var(--author-muted);
   font-size: 1.08rem;
   line-height: 1.75;
+}
+
+.home-hero p {
+  max-width: none;
 }
 
 .author-actions {
@@ -193,7 +215,8 @@ a {
 }
 
 .author-section h2,
-.author-list h2 {
+.author-list h2,
+.home-book-feature h2 {
   margin: 8px 0 0;
   color: var(--author-text);
   font-size: clamp(1.7rem, 3vw, 2.6rem);
@@ -211,13 +234,34 @@ a {
   max-width: none;
 }
 
-.about-heading p {
+.about-heading p,
+.newsletter-heading p {
   max-width: none;
+}
+
+.newsletter-heading {
+  max-width: none;
+}
+
+.newsletter-heading h1 {
+  font-size: clamp(3rem, 7vw, 5.7rem);
 }
 
 .author-list {
   display: grid;
   gap: 28px;
+}
+
+.home-book-highlights {
+  display: grid;
+  gap: 34px;
+}
+
+.home-book-feature {
+  display: grid;
+  gap: 18px;
+  border-top: 1px solid var(--author-line);
+  padding-top: 28px;
 }
 
 .book-list-shell {
@@ -285,7 +329,7 @@ a {
   position: relative;
   display: block;
   width: 132px;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 5 / 8;
   overflow: hidden;
   border: 1px solid var(--author-line);
   background: #e9eeeb;

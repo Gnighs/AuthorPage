@@ -1,5 +1,5 @@
 window.booksManifest = {
-  "generatedAt": "2026-07-27T13:51:35.544926+00:00",
+  "generatedAt": "2026-07-27T14:54:05.577393+00:00",
   "items": [
     {
       "title": "Hiccups Against Godhood",
@@ -9,17 +9,19 @@ window.booksManifest = {
       "imageUrl": "img/wip-cover.svg",
       "highlightColor": "#dbeafe",
       "amazonUrl": "https://www.amazon.com/",
-      "published": true
+      "published": true,
+      "current": false
     },
     {
       "title": "Untitled Novel Project",
       "series": "The Malamelo Collection",
-      "shortDescription": "A speculative fiction project connected to the worlds, languages, and records surfaced in the L9 Archive.",
+      "shortDescription": "A speculative fiction project connected to the worlds, languages, and records surfaced in the OAS L-9.",
       "date": "Unknown",
       "imageUrl": "img/wip-cover.svg",
       "highlightColor": "#fef3c7",
       "amazonUrl": "",
-      "published": false
+      "published": false,
+      "current": true
     }
   ]
 };
