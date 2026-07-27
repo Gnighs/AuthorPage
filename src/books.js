@@ -24,6 +24,7 @@ function createCover(book) {
 function createBookItem(book) {
   const item = document.createElement(book.published ? "a" : "article");
   item.className = `book-item${book.published ? " published" : " wip"}`;
+  item.style.setProperty("--book-highlight", book.highlightColor || "#4f6f59");
 
   if (book.published) {
     item.href = book.amazonUrl;

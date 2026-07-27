@@ -225,22 +225,26 @@ a {
 .book-list {
   display: grid;
   gap: 14px;
+  width: 100%;
   max-height: min(760px, 70vh);
   overflow-y: auto;
-  padding-right: 8px;
+  padding: 4px 8px 12px 0;
   scrollbar-color: var(--author-accent) transparent;
 }
 
 .book-item {
+  --book-highlight: var(--author-accent);
+  --book-highlight-strong: color-mix(in srgb, var(--book-highlight) 62%, #111311);
   display: grid;
   grid-template-columns: 132px minmax(0, 1fr);
   gap: 22px;
   align-items: center;
+  width: 100%;
   min-height: 184px;
   padding: 18px;
-  border: 1px solid var(--author-line);
+  border: 1px solid color-mix(in srgb, var(--book-highlight) 58%, var(--author-line));
   border-radius: 6px;
-  background: var(--author-panel);
+  background: var(--book-highlight);
   color: var(--author-text);
   text-decoration: none;
 }
@@ -255,8 +259,10 @@ a {
 
 .book-item.published:hover,
 .book-item.published:focus-visible {
-  border-color: var(--author-accent);
-  box-shadow: 0 16px 36px rgba(17, 19, 17, 0.08);
+  border-color: var(--book-highlight-strong);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--book-highlight) 68%, transparent),
+    0 16px 36px rgba(17, 19, 17, 0.08);
   outline: none;
   transform: translateY(-1px);
 }
@@ -311,7 +317,7 @@ a {
 }
 
 .book-details span {
-  color: var(--author-accent-dark);
+  color: var(--book-highlight-strong);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 0.78rem;
   font-weight: 800;
@@ -321,11 +327,19 @@ a {
 
 .book-details p,
 .book-empty {
-  max-width: 680px;
   margin: 0;
   color: var(--author-muted);
   font-size: 1.02rem;
   line-height: 1.65;
+}
+
+.book-details p {
+  max-width: none;
+  width: 100%;
+}
+
+.book-empty {
+  max-width: 680px;
 }
 
 .newsletter-form {

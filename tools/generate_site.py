@@ -3,7 +3,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
@@ -56,6 +56,7 @@ DEFAULT_BOOKS = [
             "languages, and records surfaced in the L9 Archive."
         ),
         "imageUrl": "img/wip-cover.svg",
+        "highlightColor": "#4f6f59",
         "amazonUrl": "",
         "published": False,
     }
@@ -498,10 +499,16 @@ def build_manifest():
     }
 
 
-def validate_book_url(value, source, field, required=False):
+def validate_book_url(value, source, field, required=False, absolute=False):
     url = str(value or "").strip()
     if required and not url:
         raise SystemExit(f"A published book in {source} is missing {field}.")
+    if url and absolute:
+        parsed = urlparse(url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise SystemExit(
+                f"Book field {field} in {source} must be an absolute http(s) URL."
+            )
     return url
 
 
@@ -514,11 +521,13 @@ def normalize_book(raw_book, index, source):
     short_description = str(raw_book.get("shortDescription") or "").strip()
     published = bool(raw_book.get("published", False))
     image_url = validate_book_url(raw_book.get("imageUrl"), source, "imageUrl")
+    highlight_color = str(raw_book.get("highlightColor") or "#4f6f59").strip()
     amazon_url = validate_book_url(
         raw_book.get("amazonUrl"),
         source,
         "amazonUrl",
         required=published,
+        absolute=published,
     )
 
     if not title:
@@ -531,12 +540,15 @@ def normalize_book(raw_book, index, source):
         )
     if not image_url:
         raise SystemExit(f"Book '{title}' in {source} is missing imageUrl.")
+    if not highlight_color:
+        raise SystemExit(f"Book '{title}' in {source} is missing highlightColor.")
 
     return {
         "title": title,
         "series": series,
         "shortDescription": short_description,
         "imageUrl": image_url,
+        "highlightColor": highlight_color,
         "amazonUrl": amazon_url if published else "",
         "published": published,
     }
