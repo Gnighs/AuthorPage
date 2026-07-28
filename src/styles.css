@@ -146,7 +146,7 @@ a {
 .author-page-heading h1 {
   margin: 0;
   color: var(--author-text);
-  font-size: clamp(3rem, 8vw, 7rem);
+  font-size: clamp(2.833rem, 8vw, 6.833rem);
   font-weight: 500;
   line-height: 0.94;
 }
@@ -230,6 +230,13 @@ a {
   max-width: 800px;
 }
 
+.about-profile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  gap: 42px;
+  align-items: start;
+}
+
 .about-heading {
   max-width: none;
 }
@@ -244,7 +251,43 @@ a {
 }
 
 .newsletter-heading h1 {
-  font-size: clamp(3rem, 7vw, 5.7rem);
+  font-size: clamp(2.833rem, 7vw, 5.533rem);
+}
+
+.confidential-portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--author-line);
+  border-radius: 4px;
+  background:
+    linear-gradient(135deg, rgba(17, 19, 17, 0.08) 25%, transparent 25%) 0 0 / 18px 18px,
+    linear-gradient(315deg, rgba(17, 19, 17, 0.08) 25%, transparent 25%) 0 0 / 18px 18px,
+    var(--author-panel);
+}
+
+.confidential-portrait::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(17, 19, 17, 0.18);
+}
+
+.confidential-stamp {
+  position: relative;
+  z-index: 1;
+  border: 2px solid var(--author-accent-dark);
+  padding: 8px 14px;
+  color: var(--author-accent-dark);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(0.9rem, 2.6vw, 1.12rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: rotate(-9deg);
 }
 
 .author-list {
@@ -478,11 +521,44 @@ a {
   min-width: 0;
 }
 
+.archive-top-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+  padding-top: 2px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.archive-top-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.archive-top-nav a:hover,
+.archive-top-nav a:focus-visible,
+.archive-top-nav a[aria-current="page"] {
+  border-color: var(--line);
+  background: rgba(16, 26, 23, 0.72);
+  color: var(--line-bright);
+  outline: none;
+}
+
 .station-header {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) minmax(300px, auto);
   gap: 22px;
-  align-items: center;
+  align-items: start;
   padding: 38px 0 18px;
 }
 
@@ -1147,6 +1223,14 @@ button.catalog-row {
 }
 
 @media (max-width: 980px) {
+  .about-profile {
+    grid-template-columns: 1fr;
+  }
+
+  .confidential-portrait {
+    max-width: 320px;
+  }
+
   .author-section {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -1215,7 +1299,7 @@ button.catalog-row {
 
   .author-hero h1,
   .author-page-heading h1 {
-    font-size: 3rem;
+    font-size: 2.833rem;
     line-height: 0.98;
   }
 
@@ -1275,6 +1359,21 @@ button.catalog-row {
   .site-footer {
     width: calc(100% - 20px);
     max-width: calc(100vw - 20px);
+  }
+
+  .archive-top-nav {
+    grid-column: 1 / -1;
+    order: -1;
+    justify-content: flex-start;
+    justify-self: stretch;
+    gap: 7px;
+    padding-top: 0;
+    font-size: 0.66rem;
+  }
+
+  .archive-top-nav a {
+    min-height: 30px;
+    padding-inline: 8px;
   }
 
   .station-header {
