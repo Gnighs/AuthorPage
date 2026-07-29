@@ -234,7 +234,7 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
   gap: 42px;
-  align-items: start;
+  align-items: center;
 }
 
 .about-heading {
@@ -244,6 +244,47 @@ a {
 .about-heading p,
 .newsletter-heading p {
   max-width: none;
+}
+
+.social-link {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 46px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--author-line);
+  border-radius: 6px;
+  padding: 8px 14px 8px 8px;
+  background: var(--author-panel);
+  color: var(--author-accent-dark);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.social-link:hover,
+.social-link:focus-visible {
+  border-color: var(--author-accent-dark);
+  box-shadow: 0 12px 28px rgba(17, 19, 17, 0.08);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.social-link-icon {
+  display: grid;
+  width: 30px;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 4px;
+  background: var(--author-accent-dark);
+  color: #ffffff;
+  font-size: 0.68rem;
+  line-height: 1;
 }
 
 .newsletter-heading {
