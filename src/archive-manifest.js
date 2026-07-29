@@ -1,6 +1,6 @@
 window.archiveManifest = {
   "station": "Orbital Archive Station L-9",
-  "generatedAt": "2026-07-27T14:58:42.172347+00:00",
+  "generatedAt": "2026-07-29T11:32:48.324312+00:00",
   "root": {
     "id": "archive",
     "archiveId": "L9",
@@ -76,12 +76,12 @@ window.archiveManifest = {
                     "archiveId": "L9-COLO-AR29G-LANG-882-J",
                     "title": "Shasvin Reference Grammar",
                     "path": "oasl9/documents/colonial-records/AR-29G/languages/Shasvin_Reference_Grammar.pdf",
-                    "href": "/oasl9/documents/colonial-records/AR-29G/languages/Shasvin_Reference_Grammar.pdf",
-                    "status": "Cleared",
-                    "className": "cleared",
-                    "statusLabel": "Current Archive Copy",
-                    "actionLabel": "View PDF",
-                    "isAvailable": true
+                    "href": "",
+                    "status": "InProgress",
+                    "className": "in-progress",
+                    "statusLabel": "Work In Progress",
+                    "actionLabel": "PDF Unavailable",
+                    "isAvailable": false
                   },
                   {
                     "id": "457-I",
@@ -89,9 +89,9 @@ window.archiveManifest = {
                     "title": "Kupina Hala Reference Grammar",
                     "path": "oasl9/documents/colonial-records/AR-29G/languages/Kupina_Hala_Reference_Grammar.pdf",
                     "href": "",
-                    "status": "Classified",
-                    "className": "classified",
-                    "statusLabel": "Classified",
+                    "status": "InProgress",
+                    "className": "in-progress",
+                    "statusLabel": "Work In Progress",
                     "actionLabel": "PDF Unavailable",
                     "isAvailable": false
                   }

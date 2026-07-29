@@ -34,7 +34,7 @@ STATUS_DETAILS = {
     "InProgress": {
         "className": "in-progress",
         "statusLabel": "Work In Progress",
-        "actionLabel": "View PDF",
+        "actionLabel": "PDF Unavailable",
     },
     "Classified": {
         "className": "classified",
@@ -318,7 +318,7 @@ def normalize_file(
 
     details = STATUS_DETAILS[status]
     linked_file_exists = bool(relative_path) and (index_dir / relative_path).is_file()
-    is_available = linked_file_exists and status != "Classified"
+    is_available = linked_file_exists and status == "Cleared"
     document_path = (
         "/".join([DOCUMENTS_PUBLIC_PATH, *path_parts, relative_path])
         if relative_path

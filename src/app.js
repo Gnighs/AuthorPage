@@ -378,7 +378,7 @@ function documentRow(file) {
 
 function documentCard(file) {
   const card = document.createElement(file.isAvailable ? "a" : "article");
-  card.className = `section-card document-card ${file.className}`.trim();
+  card.className = `section-card document-card ${file.className} ${file.isAvailable ? "available" : "unavailable"}`.trim();
   if (file.isAvailable) {
     card.href = fileHref(file);
     card.target = "_blank";

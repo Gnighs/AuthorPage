@@ -960,6 +960,16 @@ h2 {
   background: rgba(44, 34, 14, 0.5);
 }
 
+.section-card.in-progress.unavailable {
+  cursor: default;
+}
+
+.section-card.in-progress.unavailable:hover {
+  border-color: rgba(215, 169, 68, 0.64);
+  background: rgba(44, 34, 14, 0.5);
+  box-shadow: none;
+}
+
 .section-card.in-progress .card-status {
   color: var(--amber);
 }
