@@ -12,6 +12,7 @@ DOCUMENTS_DIR = PROJECT_ROOT / "oasl9" / "documents"
 DOCUMENTS_PUBLIC_PATH = "oasl9/documents"
 ROOT_CATALOG_PATH = DOCUMENTS_DIR / "collections.json"
 ARCHIVE_OUTPUT_PATH = SRC_DIR / "archive-manifest.js"
+ARCHIVE_PAGE_TEMPLATE_PATH = PROJECT_ROOT / "oasl9" / "index.html"
 BOOKS_DIR = PROJECT_ROOT / "books"
 BOOKS_SOURCE_PATH = BOOKS_DIR / "books.json"
 BOOKS_OUTPUT_PATH = SRC_DIR / "books-manifest.js"
@@ -587,11 +588,68 @@ def write_js_manifest(path, namespace, manifest):
     )
 
 
+def archive_page_template():
+    html = ARCHIVE_PAGE_TEMPLATE_PATH.read_text(encoding="utf-8")
+    replacements = {
+        'href="./favicon.ico"': 'href="/oasl9/favicon.ico"',
+        'href="./icons/favicon-32x32.png"': 'href="/oasl9/icons/favicon-32x32.png"',
+        'href="./icons/apple-touch-icon.png"': 'href="/oasl9/icons/apple-touch-icon.png"',
+        'href="./site.webmanifest"': 'href="/oasl9/site.webmanifest"',
+        'href="../src/styles.css"': 'href="/src/styles.css"',
+        'src="../src/archive-manifest.js"': 'src="/src/archive-manifest.js"',
+        'src="../src/app.js"': 'src="/src/app.js"',
+        'href="../index.html"': 'href="/index.html"',
+        'href="../books/index.html"': 'href="/books/index.html"',
+        'href="../about/index.html"': 'href="/about/index.html"',
+        'href="../newsletter/index.html"': 'href="/newsletter/index.html"',
+        'href="./index.html"': 'href="/oasl9/index.html"',
+        'src="./icons/logo-archive.png"': 'src="/oasl9/icons/logo-archive.png"',
+    }
+    for old, new in replacements.items():
+        html = html.replace(old, new)
+    return html
+
+
+def archive_routes(node, path=None):
+    if path is None:
+        path = []
+
+    routes = []
+    if path:
+        routes.append(path)
+
+    if node.get("kind") == "index":
+        routes.extend(
+            [*path, document["id"]]
+            for document in node.get("documents", [])
+            if document.get("isAvailable")
+        )
+        return routes
+
+    for item in node.get("items", []):
+        if not item.get("isAccessible"):
+            continue
+        routes.extend(archive_routes(item, [*path, item["id"]]))
+    return routes
+
+
+def write_archive_route_pages(archive_manifest):
+    template = archive_page_template()
+    written = 0
+    for route in archive_routes(archive_manifest["root"]):
+        page_path = PROJECT_ROOT / "oasl9" / Path(*route) / "index.html"
+        page_path.parent.mkdir(parents=True, exist_ok=True)
+        page_path.write_text(template, encoding="utf-8")
+        written += 1
+    return written
+
+
 def main():
     archive_manifest = build_manifest()
     books_manifest = build_books_manifest()
     write_js_manifest(ARCHIVE_OUTPUT_PATH, "archiveManifest", archive_manifest)
     write_js_manifest(BOOKS_OUTPUT_PATH, "booksManifest", books_manifest)
+    route_page_count = write_archive_route_pages(archive_manifest)
     print(
         f"Generated {ARCHIVE_OUTPUT_PATH.relative_to(PROJECT_ROOT)} "
         f"with {len(archive_manifest['root']['items'])} top-level collections."
@@ -600,6 +658,7 @@ def main():
         f"Generated {BOOKS_OUTPUT_PATH.relative_to(PROJECT_ROOT)} "
         f"with {len(books_manifest['items'])} books."
     )
+    print(f"Generated {route_page_count} archive route pages.")
 
 
 if __name__ == "__main__":

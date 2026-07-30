@@ -33,6 +33,10 @@ const fileStatusItems = [
   { label: "Classified Files", status: "Classified", className: "classified" }
 ];
 
+function rootRoute() {
+  return { node: rootCatalog, ancestors: [], path: [], document: null, documentPath: null };
+}
+
 function formatTimestamp(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
@@ -160,15 +164,11 @@ function resolvePath(path) {
 function getRoute() {
   const hashParts = normalizeHash(window.location.hash).split("/").filter(Boolean);
   const parts = hashParts.length ? hashParts : pathParts();
-  if (parts.length === 0) return { node: rootCatalog, ancestors: [], path: [] };
+  if (parts.length === 0) return rootRoute();
 
   const path = parts[0] === "browse" ? parts.slice(1) : legacyPath(parts) ?? parts;
   const candidate = path ?? [];
-  for (let length = candidate.length; length >= 0; length -= 1) {
-    const route = resolvePath(candidate.slice(0, length));
-    if (route) return route;
-  }
-  return { node: rootCatalog, ancestors: [], path: [] };
+  return resolvePath(candidate) ?? rootRoute();
 }
 
 function routeUrl(path) {

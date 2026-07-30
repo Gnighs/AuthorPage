@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#09110f">
+    <title>OAS L-9 | Pau Roca-Pardo</title>
+    <link rel="icon" href="/oasl9/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/oasl9/icons/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/oasl9/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/oasl9/site.webmanifest">
+    <link rel="stylesheet" href="/src/styles.css">
+    <script src="/src/archive-manifest.js" defer></script>
+    <script src="/src/app.js" defer></script>
+  </head>
+  <body class="archive-site">
+    <div class="scanline" aria-hidden="true"></div>
+
+    <header class="archive-site-header">
+      <a class="archive-author-name" href="/index.html">
+        <img class="archive-logo-mark" src="/oasl9/icons/logo-archive.png" alt="" aria-hidden="true">
+        <span>Pau Roca-Pardo</span>
+      </a>
+      <nav class="archive-top-nav" aria-label="Primary navigation">
+        <a href="/index.html">Home</a>
+        <a href="/books/index.html">Books</a>
+        <a href="/about/index.html">About</a>
+        <a href="/newsletter/index.html">Newsletter</a>
+        <a aria-current="page" href="/oasl9/index.html">OAS L-9</a>
+      </nav>
+    </header>
+
+    <header class="station-header">
+      <div class="station-mark" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div>
+        <p class="eyebrow">Public Access Terminal</p>
+        <h1><span>Orbital Archive</span> <span>Station L-9</span></h1>
+      </div>
+    </header>
+
+    <section class="station-intro" aria-label="Archive notice">
+      <p class="header-copy">
+        This archive is maintained by INES, the Integrated Neural Expert System, aboard Orbital Archive
+        Station L-9, currently orbiting New Nova Terra. All records are kept in accordance with the archival and
+        validation standards of the Senate Office of Interstellar Documentation. Most records remain classified
+        pending verification, jurisdictional review, or authorization for public release.
+      </p>
+    </section>
+
+    <main class="archive-shell">
+      <section class="status-summary" aria-label="Archive summary">
+        <div class="summary-switch" aria-label="Summary view">
+          <button type="button" aria-pressed="true" data-summary-view="station">Station Status</button>
+          <button type="button" aria-pressed="false" data-summary-view="files">File Report</button>
+        </div>
+        <div id="status-panel" class="status-panel">
+          <div>
+            <span class="status-label">Archival Integrity</span>
+            <strong>Moderate</strong>
+          </div>
+          <div>
+            <span class="status-label">Clearance</span>
+            <strong>Public-ish</strong>
+          </div>
+          <div>
+            <span class="status-label">Interface Language</span>
+            <strong>Senate Standard Shasvin</strong>
+          </div>
+        </div>
+      </section>
+
+      <nav id="navigation-bar" class="navigation-bar" aria-label="Archive navigation" hidden>
+        <button id="back-button" class="ghost-button" type="button">← Back</button>
+        <div id="breadcrumbs" class="breadcrumbs"></div>
+      </nav>
+
+      <section id="directory-section" aria-labelledby="sections-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" id="directory-kicker">Directory</p>
+            <h2 id="sections-title">Archive Divisions</h2>
+          </div>
+          <p id="generation-stamp" class="generation-stamp"></p>
+        </div>
+        <div id="section-grid" class="section-grid"></div>
+      </section>
+
+      <section id="document-panel" class="document-panel" aria-labelledby="documents-title" hidden>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" id="active-section-kicker">Index Contents</p>
+            <h2 id="documents-title">Selected Archive</h2>
+          </div>
+          <a id="document-direct-link" class="ghost-button document-direct-link" href="#" target="_blank" rel="noopener" hidden>Open PDF</a>
+        </div>
+        <div id="document-list" class="document-list"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 Pau Roca-Pardo. All rights reserved.</p>
+      <p>All website content, archival documents, and PDF files are original works owned by Pau Roca-Pardo.</p>
+    </footer>
+  </body>
+</html>
