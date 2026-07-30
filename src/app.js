@@ -4,6 +4,7 @@ const directoryKicker = document.querySelector("#directory-kicker");
 const directoryTitle = document.querySelector("#sections-title");
 const documentPanel = document.querySelector("#document-panel");
 const documentList = document.querySelector("#document-list");
+const documentDirectLink = document.querySelector("#document-direct-link");
 const documentsTitle = document.querySelector("#documents-title");
 const activeSectionKicker = document.querySelector("#active-section-kicker");
 const generationStamp = document.querySelector("#generation-stamp");
@@ -136,16 +137,24 @@ function pathParts() {
 function resolvePath(path) {
   let node = rootCatalog;
   const ancestors = [];
+  const indexPath = [];
 
   for (const segment of path) {
+    if (node.kind === "index") {
+      const document = (node.documents ?? []).find((file) => file.id === segment && file.isAvailable);
+      return document
+        ? { node, ancestors, path: indexPath, document, documentPath: [...indexPath, document.id] }
+        : null;
+    }
     if (!node.items) return null;
     const next = node.items.find((item) => item.id === segment);
     if (!next || !next.isAccessible) return null;
     ancestors.push(node);
     node = next;
+    indexPath.push(segment);
   }
 
-  return { node, ancestors, path };
+  return { node, ancestors, path: indexPath, document: null, documentPath: null };
 }
 
 function getRoute() {
@@ -176,7 +185,7 @@ function routeHash(path) {
 function syncCleanUrl(route) {
   if (localFileProtocol) return;
 
-  const target = routeUrl(route.path);
+  const target = routeUrl(route.documentPath ?? route.path);
   if (window.location.hash || window.location.pathname !== target) {
     window.history.replaceState(null, "", target);
   }
@@ -213,14 +222,20 @@ function itemAction(item) {
   return item.kind === "index" ? "Open Index" : "Open Directory";
 }
 
-function fileHref(file) {
-  if (!localFileProtocol) return file.href;
+function directFileHref(file) {
+  if (!localFileProtocol) return file.href || `/${file.path}`;
   const prefix = window.location.pathname.includes("/src/")
     ? "../"
     : window.location.pathname.includes(`/${archiveBasePath}/`)
       ? "../"
       : "./";
   return `${prefix}${file.path}`;
+}
+
+function plainText(value) {
+  const template = document.createElement("template");
+  template.innerHTML = value || "";
+  return template.content.textContent || "";
 }
 
 function createCatalogCard(item, path) {
@@ -285,13 +300,18 @@ function emptyCatalogNotice(node) {
 function breadcrumbData(route) {
   const nodes = [rootCatalog, ...route.ancestors.slice(1), route.node];
   const seen = [];
-  return nodes.map((node, index) => {
+  const crumbs = nodes.map((node, index) => {
     if (index > 0) seen.push(route.path[index - 1]);
     return {
       label: node.title,
       path: index === nodes.length - 1 ? undefined : [...seen]
     };
   });
+  if (route.document) {
+    crumbs[crumbs.length - 1].path = route.path;
+    crumbs.push({ label: route.document.id });
+  }
+  return crumbs;
 }
 
 function renderBreadcrumbs(route) {
@@ -302,7 +322,7 @@ function renderBreadcrumbs(route) {
     return;
   }
 
-  backButton.onclick = () => navigate(route.path.slice(0, -1));
+  backButton.onclick = () => navigate(route.document ? route.path : route.path.slice(0, -1));
   const crumbs = breadcrumbData(route);
   breadcrumbs.replaceChildren(
     ...crumbs.flatMap((crumb, index) => {
@@ -355,13 +375,12 @@ function renderDirectory(route) {
   }
 }
 
-function documentRow(file) {
-  const row = document.createElement(file.isAvailable ? "a" : "article");
+function documentRow(file, routePath) {
+  const row = document.createElement(file.isAvailable ? "button" : "article");
   row.className = `document-row ${file.className} ${file.isAvailable ? "available" : "unavailable"}`;
   if (file.isAvailable) {
-    row.href = fileHref(file);
-    row.target = "_blank";
-    row.rel = "noopener";
+    row.type = "button";
+    row.addEventListener("click", () => navigate([...routePath, file.id]));
   } else {
     row.setAttribute("aria-disabled", "true");
   }
@@ -376,13 +395,12 @@ function documentRow(file) {
   return row;
 }
 
-function documentCard(file) {
-  const card = document.createElement(file.isAvailable ? "a" : "article");
+function documentCard(file, routePath) {
+  const card = document.createElement(file.isAvailable ? "button" : "article");
   card.className = `section-card document-card ${file.className} ${file.isAvailable ? "available" : "unavailable"}`.trim();
   if (file.isAvailable) {
-    card.href = fileHref(file);
-    card.target = "_blank";
-    card.rel = "noopener";
+    card.type = "button";
+    card.addEventListener("click", () => navigate([...routePath, file.id]));
   } else {
     card.setAttribute("aria-disabled", "true");
   }
@@ -396,6 +414,19 @@ function documentCard(file) {
     <span class="card-status">${file.actionLabel}</span>
   `;
   return card;
+}
+
+function documentViewer(file) {
+  const article = document.createElement("article");
+  article.className = "archive-document-viewer";
+
+  const frame = document.createElement("iframe");
+  frame.className = "archive-pdf-frame";
+  frame.src = directFileHref(file);
+  frame.title = `${plainText(file.title)} PDF`;
+
+  article.append(frame);
+  return article;
 }
 
 function maintenanceNotice(index) {
@@ -414,10 +445,22 @@ function renderDocuments(route) {
   if (index.kind !== "index") {
     documentPanel.hidden = true;
     documentList.replaceChildren();
+    documentDirectLink.hidden = true;
     return;
   }
 
   documentPanel.hidden = false;
+  if (route.document) {
+    documentsTitle.innerHTML = route.document.title;
+    activeSectionKicker.textContent = route.document.archiveId;
+    documentDirectLink.href = directFileHref(route.document);
+    documentDirectLink.hidden = false;
+    documentList.className = "document-list layout-viewer";
+    documentList.replaceChildren(documentViewer(route.document));
+    return;
+  }
+
+  documentDirectLink.hidden = true;
   documentsTitle.textContent = index.title;
   activeSectionKicker.textContent =
     index.availability === "available" ? "Open Index" : "Index Under Maintenance";
@@ -429,7 +472,9 @@ function renderDocuments(route) {
   }
 
   documentList.replaceChildren(
-    ...index.documents.map(index.layout === "cards" ? documentCard : documentRow)
+    ...index.documents.map((file) =>
+      index.layout === "cards" ? documentCard(file, route.path) : documentRow(file, route.path)
+    )
   );
 }
 
