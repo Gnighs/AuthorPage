@@ -1297,7 +1297,12 @@ button.catalog-row {
     grid-template-columns: 1fr;
   }
 
+  .about-heading {
+    order: 2;
+  }
+
   .about-portrait {
+    order: 1;
     max-width: 320px;
   }
 
@@ -1590,8 +1595,8 @@ button.catalog-row {
   }
 
   .section-card {
-    flex: 0 0 calc(100vw - 42px);
-    max-width: calc(100vw - 42px);
+    flex: 0 0 min(300px, 78vw);
+    max-width: min(300px, 78vw);
     gap: 6px 10px;
     min-height: 0;
     padding: 12px;
