@@ -250,15 +250,23 @@ a {
 .about-profile {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
-  gap: 42px;
+  column-gap: 42px;
+  row-gap: 18px;
   align-items: center;
 }
 
 .about-heading {
+  grid-column: 1;
   max-width: none;
 }
 
-.about-heading p,
+.about-copy {
+  display: grid;
+  grid-column: 1;
+  gap: 18px;
+}
+
+.about-copy p,
 .newsletter-heading p {
   max-width: none;
 }
@@ -313,6 +321,8 @@ a {
 }
 
 .about-portrait {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   width: 100%;
   overflow: hidden;
   border: 1px solid var(--author-line);
@@ -1326,12 +1336,18 @@ button.catalog-row {
   }
 
   .about-heading {
-    order: 2;
+    order: 1;
   }
 
   .about-portrait {
-    order: 1;
+    grid-column: 1;
+    grid-row: auto;
+    order: 2;
     max-width: 320px;
+  }
+
+  .about-copy {
+    order: 3;
   }
 
   .author-section {
