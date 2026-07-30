@@ -1,0 +1,19 @@
+{
+  "name": "Orbital Archive Station L-9",
+  "short_name": "OAS L-9",
+  "icons": [
+    {
+      "src": "/oasl9/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/oasl9/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#09110f",
+  "background_color": "#07110f",
+  "display": "standalone"
+}

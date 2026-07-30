@@ -85,10 +85,28 @@ a {
 }
 
 .author-name {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
   color: var(--author-text);
   font-size: 1.08rem;
   font-weight: 700;
   text-decoration: none;
+}
+
+.author-name:focus-visible,
+.archive-author-name:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+
+.author-logo-mark {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .author-nav {
@@ -552,6 +570,9 @@ a {
 }
 
 .archive-author-name {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
   color: var(--muted);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1.08rem;
@@ -560,12 +581,12 @@ a {
   white-space: nowrap;
 }
 
-.archive-author-name:hover,
-.archive-author-name:focus-visible {
-  color: var(--line-bright);
-  outline: none;
-  text-decoration: underline;
-  text-underline-offset: 5px;
+.archive-logo-mark {
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .archive-top-nav {
@@ -1339,6 +1360,12 @@ button.catalog-row {
 
   .author-nav {
     justify-content: flex-start;
+  }
+
+  .author-logo-mark,
+  .archive-logo-mark {
+    width: 22px;
+    height: 22px;
   }
 
   .author-main {
