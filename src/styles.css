@@ -1345,6 +1345,10 @@ button.catalog-row {
     max-width: 320px;
   }
 
+  .about-copy {
+    gap: 12px;
+  }
+
   .author-section {
     grid-template-columns: 1fr;
     gap: 18px;
