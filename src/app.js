@@ -232,6 +232,18 @@ function directFileHref(file) {
   return `${prefix}${file.path}`;
 }
 
+function openDocument(file, routePath) {
+  if (mobileViewport.matches) {
+    const href = directFileHref(file);
+    const openedWindow = window.open(href, "_blank");
+    if (openedWindow) openedWindow.opener = null;
+    if (!openedWindow) window.location.href = href;
+    return;
+  }
+
+  navigate([...routePath, file.id]);
+}
+
 function plainText(value) {
   const template = document.createElement("template");
   template.innerHTML = value || "";
@@ -380,7 +392,7 @@ function documentRow(file, routePath) {
   row.className = `document-row ${file.className} ${file.isAvailable ? "available" : "unavailable"}`;
   if (file.isAvailable) {
     row.type = "button";
-    row.addEventListener("click", () => navigate([...routePath, file.id]));
+    row.addEventListener("click", () => openDocument(file, routePath));
   } else {
     row.setAttribute("aria-disabled", "true");
   }
@@ -400,7 +412,7 @@ function documentCard(file, routePath) {
   card.className = `section-card document-card ${file.className} ${file.isAvailable ? "available" : "unavailable"}`.trim();
   if (file.isAvailable) {
     card.type = "button";
-    card.addEventListener("click", () => navigate([...routePath, file.id]));
+    card.addEventListener("click", () => openDocument(file, routePath));
   } else {
     card.setAttribute("aria-disabled", "true");
   }
@@ -451,9 +463,24 @@ function renderDocuments(route) {
 
   documentPanel.hidden = false;
   if (route.document) {
+    documentDirectLink.href = directFileHref(route.document);
+
+    if (mobileViewport.matches) {
+      documentsTitle.textContent = index.title;
+      activeSectionKicker.textContent =
+        index.availability === "available" ? "Open Index" : "Index Under Maintenance";
+      documentDirectLink.hidden = true;
+      documentList.className = `document-list layout-${index.layout}`;
+      documentList.replaceChildren(
+        index.layout === "cards"
+          ? documentCard(route.document, route.path)
+          : documentRow(route.document, route.path)
+      );
+      return;
+    }
+
     documentsTitle.innerHTML = route.document.title;
     activeSectionKicker.textContent = route.document.archiveId;
-    documentDirectLink.href = directFileHref(route.document);
     documentDirectLink.hidden = false;
     documentList.className = "document-list layout-viewer";
     documentList.replaceChildren(documentViewer(route.document));
@@ -518,4 +545,9 @@ Array.from(summaryButtons).forEach((button) => {
 });
 window.addEventListener("hashchange", handleHashChange);
 window.addEventListener("popstate", handleHashChange);
+if (mobileViewport.addEventListener) {
+  mobileViewport.addEventListener("change", render);
+} else {
+  mobileViewport.addListener(render);
+}
 render();
