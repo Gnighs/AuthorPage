@@ -19,7 +19,18 @@ const rootCatalog = archiveManifest.root;
 const mobileViewport = window.matchMedia("(max-width: 640px)");
 const localFileProtocol = window.location.protocol === "file:";
 const archiveBasePath = "oasl9";
+const appScriptUrl =
+  document.currentScript?.src ||
+  Array.from(document.scripts)
+    .map((script) => script.src)
+    .find((src) => src.endsWith("/src/app.js")) ||
+  new URL("/src/app.js", window.location.href).href;
+const pdfJsScriptPath = new URL("vendor/pdfjs/pdf.min.js", appScriptUrl).href;
+const pdfJsWorkerPath = new URL("vendor/pdfjs/pdf.worker.min.js", appScriptUrl).href;
 let activeSummaryView = "station";
+let activePdfViewerId = 0;
+let pdfRenderSequence = 0;
+let pdfJsLoadPromise = null;
 
 const stationStatusItems = [
   { label: "Archival Integrity", value: "Moderate" },
@@ -233,14 +244,6 @@ function directFileHref(file) {
 }
 
 function openDocument(file, routePath) {
-  if (mobileViewport.matches) {
-    const href = directFileHref(file);
-    const openedWindow = window.open(href, "_blank");
-    if (openedWindow) openedWindow.opener = null;
-    if (!openedWindow) window.location.href = href;
-    return;
-  }
-
   navigate([...routePath, file.id]);
 }
 
@@ -432,13 +435,182 @@ function documentViewer(file) {
   const article = document.createElement("article");
   article.className = "archive-document-viewer";
 
-  const frame = document.createElement("iframe");
-  frame.className = "archive-pdf-frame";
-  frame.src = directFileHref(file);
-  frame.title = `${plainText(file.title)} PDF`;
+  if (localFileProtocol) {
+    const frame = document.createElement("iframe");
+    frame.className = "archive-pdf-frame";
+    frame.src = directFileHref(file);
+    frame.title = `${plainText(file.title)} PDF`;
+    article.append(frame);
+    return article;
+  }
 
-  article.append(frame);
+  article.setAttribute("aria-busy", "true");
+
+  const status = document.createElement("div");
+  status.className = "archive-pdf-status";
+  status.textContent = "Loading PDF";
+
+  const pages = document.createElement("div");
+  pages.className = "archive-pdf-pages";
+  pages.setAttribute("aria-label", `${plainText(file.title)} PDF`);
+
+  article.append(status, pages);
+  renderPdfViewer(file, article, pages, status);
   return article;
+}
+
+function debounce(callback, delay = 150) {
+  let timeout = null;
+  return () => {
+    window.clearTimeout(timeout);
+    timeout = window.setTimeout(callback, delay);
+  };
+}
+
+function pdfViewerIsActive(viewerId, article) {
+  return viewerId === activePdfViewerId && article.isConnected;
+}
+
+function replaceDocumentList(...children) {
+  Array.from(documentList.querySelectorAll(".archive-document-viewer")).forEach((viewer) => {
+    viewer.dispatchEvent(new Event("archive-pdf-disconnect"));
+  });
+  documentList.replaceChildren(...children);
+}
+
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if (pdfJsLoadPromise) return pdfJsLoadPromise;
+
+  pdfJsLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = pdfJsScriptPath;
+    script.async = true;
+    script.onload = () => {
+      if (window.pdfjsLib) {
+        resolve(window.pdfjsLib);
+      } else {
+        reject(new Error("PDF.js loaded without exposing pdfjsLib."));
+      }
+    };
+    script.onerror = () => reject(new Error(`Unable to load ${pdfJsScriptPath}.`));
+    document.head.append(script);
+  });
+
+  return pdfJsLoadPromise;
+}
+
+async function renderPdfPages(pdf, article, pages, viewerId, renderVersion) {
+  if (!pdfViewerIsActive(viewerId, article)) return;
+
+  pages.replaceChildren();
+  const containerWidth = Math.floor(pages.clientWidth);
+  if (!containerWidth) return;
+
+  const outputScale = Math.min(window.devicePixelRatio || 1, 2);
+
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
+
+    const page = await pdf.getPage(pageNumber);
+    if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
+
+    const baseViewport = page.getViewport({ scale: 1 });
+    const scale = containerWidth / baseViewport.width;
+    const viewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d", { alpha: false });
+    const pageShell = document.createElement("figure");
+    pageShell.className = "archive-pdf-page";
+    pageShell.setAttribute("aria-label", `Page ${pageNumber} of ${pdf.numPages}`);
+
+    canvas.width = Math.floor(viewport.width * outputScale);
+    canvas.height = Math.floor(viewport.height * outputScale);
+    canvas.style.width = `${Math.floor(viewport.width)}px`;
+    canvas.style.height = `${Math.floor(viewport.height)}px`;
+
+    pageShell.append(canvas);
+    pages.append(pageShell);
+
+    await page.render({
+      canvasContext: context,
+      viewport,
+      transform: outputScale === 1 ? null : [outputScale, 0, 0, outputScale, 0, 0]
+    }).promise;
+    if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
+  }
+}
+
+async function renderPdfViewer(file, article, pages, status) {
+  const viewerId = (activePdfViewerId += 1);
+  let pdf = null;
+
+  try {
+    const pdfjs = await loadPdfJs();
+    if (!pdfViewerIsActive(viewerId, article)) return;
+
+    pdfjs.GlobalWorkerOptions.workerSrc = pdfJsWorkerPath;
+    const loadingTask = pdfjs.getDocument(directFileHref(file));
+    pdf = await loadingTask.promise;
+    if (!pdfViewerIsActive(viewerId, article)) return;
+
+    status.hidden = true;
+    article.removeAttribute("aria-busy");
+
+    const showRenderError = (error) => {
+      console.error("PDF render unavailable", error);
+      if (!pdfViewerIsActive(viewerId, article)) return;
+      article.removeAttribute("aria-busy");
+      status.hidden = false;
+      status.textContent = "PDF preview unavailable. Use Open PDF to view the file.";
+    };
+
+    const renderCurrentSize = async () => {
+      if (!pdfViewerIsActive(viewerId, article)) return;
+      const renderVersion = String((pdfRenderSequence += 1));
+      article.dataset.renderVersion = renderVersion;
+      status.hidden = false;
+      status.textContent = "Rendering PDF";
+      await renderPdfPages(pdf, article, pages, viewerId, renderVersion);
+      if (pdfViewerIsActive(viewerId, article) && renderVersion === article.dataset.renderVersion) {
+        status.hidden = true;
+      }
+    };
+    const queueRender = () => {
+      renderCurrentSize().catch(showRenderError);
+    };
+
+    await renderCurrentSize();
+
+    const handleResize = debounce(queueRender);
+    const resizeObserver =
+      "ResizeObserver" in window
+        ? new ResizeObserver(handleResize)
+        : null;
+    if (resizeObserver) {
+      resizeObserver.observe(pages);
+    } else {
+      window.addEventListener("resize", handleResize);
+    }
+    article.addEventListener(
+      "archive-pdf-disconnect",
+      () => {
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+        } else {
+          window.removeEventListener("resize", handleResize);
+        }
+      },
+      { once: true }
+    );
+  } catch (error) {
+    console.error("PDF preview unavailable", error);
+    if (!pdfViewerIsActive(viewerId, article)) return;
+    article.removeAttribute("aria-busy");
+    status.hidden = false;
+    status.textContent = "PDF preview unavailable. Use Open PDF to view the file.";
+  }
 }
 
 function maintenanceNotice(index) {
@@ -456,7 +628,7 @@ function renderDocuments(route) {
   const index = route.node;
   if (index.kind !== "index") {
     documentPanel.hidden = true;
-    documentList.replaceChildren();
+    replaceDocumentList();
     documentDirectLink.hidden = true;
     return;
   }
@@ -464,26 +636,11 @@ function renderDocuments(route) {
   documentPanel.hidden = false;
   if (route.document) {
     documentDirectLink.href = directFileHref(route.document);
-
-    if (mobileViewport.matches) {
-      documentsTitle.textContent = index.title;
-      activeSectionKicker.textContent =
-        index.availability === "available" ? "Open Index" : "Index Under Maintenance";
-      documentDirectLink.hidden = true;
-      documentList.className = `document-list layout-${index.layout}`;
-      documentList.replaceChildren(
-        index.layout === "cards"
-          ? documentCard(route.document, route.path)
-          : documentRow(route.document, route.path)
-      );
-      return;
-    }
-
     documentsTitle.innerHTML = route.document.title;
     activeSectionKicker.textContent = route.document.archiveId;
     documentDirectLink.hidden = false;
     documentList.className = "document-list layout-viewer";
-    documentList.replaceChildren(documentViewer(route.document));
+    replaceDocumentList(documentViewer(route.document));
     return;
   }
 
@@ -494,11 +651,11 @@ function renderDocuments(route) {
   documentList.className = `document-list layout-${index.layout}`;
 
   if (!index.documents.length) {
-    documentList.replaceChildren(maintenanceNotice(index));
+    replaceDocumentList(maintenanceNotice(index));
     return;
   }
 
-  documentList.replaceChildren(
+  replaceDocumentList(
     ...index.documents.map((file) =>
       index.layout === "cards" ? documentCard(file, route.path) : documentRow(file, route.path)
     )
