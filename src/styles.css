@@ -1149,6 +1149,12 @@ button.catalog-row {
   padding: 20px;
 }
 
+.document-panel.viewer-active {
+  width: min(1160px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  margin-inline: calc((100% - min(1160px, calc(100vw - 32px))) / 2);
+}
+
 .document-panel[hidden] {
   display: none;
 }
@@ -1740,6 +1746,12 @@ button.catalog-row {
 
   .archive-pdf-toolbar {
     grid-template-columns: 1fr auto;
+  }
+
+  .document-panel.viewer-active {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
   }
 
   .archive-pdf-page-controls {

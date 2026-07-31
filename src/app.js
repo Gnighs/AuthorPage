@@ -802,6 +802,7 @@ function renderDocuments(route) {
   const index = route.node;
   if (index.kind !== "index") {
     documentPanel.hidden = true;
+    documentPanel.classList.remove("viewer-active");
     replaceDocumentList();
     documentDirectLink.hidden = true;
     return;
@@ -809,6 +810,7 @@ function renderDocuments(route) {
 
   documentPanel.hidden = false;
   if (route.document) {
+    documentPanel.classList.add("viewer-active");
     documentDirectLink.href = directFileHref(route.document);
     documentsTitle.innerHTML = route.document.title;
     activeSectionKicker.textContent = route.document.archiveId;
@@ -818,6 +820,7 @@ function renderDocuments(route) {
     return;
   }
 
+  documentPanel.classList.remove("viewer-active");
   documentDirectLink.hidden = true;
   documentsTitle.textContent = index.title;
   activeSectionKicker.textContent =
