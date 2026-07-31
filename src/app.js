@@ -454,7 +454,11 @@ function documentViewer(file) {
   pages.className = "archive-pdf-pages";
   pages.setAttribute("aria-label", `${plainText(file.title)} PDF`);
 
-  article.append(status, pages);
+  const viewport = document.createElement("div");
+  viewport.className = "archive-pdf-viewport";
+  viewport.append(pages);
+
+  article.append(status, viewport);
   renderPdfViewer(file, article, pages, status);
   return article;
 }
@@ -489,7 +493,7 @@ function loadPdfJs() {
   return pdfJsLoadPromise;
 }
 
-async function renderPdfPages(pdf, article, pages, viewerId, renderVersion) {
+async function renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersion) {
   if (!pdfViewerIsActive(viewerId, article)) return;
 
   pages.replaceChildren();
@@ -513,19 +517,37 @@ async function renderPdfPages(pdf, article, pages, viewerId, renderVersion) {
     const pageShell = document.createElement("figure");
     pageShell.className = "archive-pdf-page";
     pageShell.setAttribute("aria-label", `Page ${pageNumber} of ${pdf.numPages}`);
+    pageShell.style.width = `${Math.floor(viewport.width)}px`;
+    pageShell.style.height = `${Math.floor(viewport.height)}px`;
 
     canvas.width = Math.floor(viewport.width * outputScale);
     canvas.height = Math.floor(viewport.height * outputScale);
     canvas.style.width = `${Math.floor(viewport.width)}px`;
     canvas.style.height = `${Math.floor(viewport.height)}px`;
 
-    pageShell.append(canvas);
+    const textLayer = document.createElement("div");
+    textLayer.className = "archive-pdf-text-layer textLayer";
+    textLayer.style.width = `${Math.floor(viewport.width)}px`;
+    textLayer.style.height = `${Math.floor(viewport.height)}px`;
+
+    pageShell.append(canvas, textLayer);
     pages.append(pageShell);
 
     await page.render({
       canvasContext: context,
       viewport,
       transform: outputScale === 1 ? null : [outputScale, 0, 0, outputScale, 0, 0]
+    }).promise;
+    if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
+
+    const textContent = await page.getTextContent();
+    if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
+
+    await pdfjs.renderTextLayer({
+      textContentSource: textContent,
+      container: textLayer,
+      viewport,
+      textDivs: []
     }).promise;
     if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
   }
@@ -553,7 +575,7 @@ async function renderPdfViewer(file, article, pages, status) {
       article.dataset.renderVersion = renderVersion;
       status.hidden = false;
       status.textContent = "Rendering PDF";
-      await renderPdfPages(pdf, article, pages, viewerId, renderVersion);
+      await renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersion);
       if (pdfViewerIsActive(viewerId, article) && renderVersion === article.dataset.renderVersion) {
         status.hidden = true;
       }

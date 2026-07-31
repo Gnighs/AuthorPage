@@ -1231,29 +1231,60 @@ button.catalog-row {
   background: rgba(16, 26, 23, 0.76);
 }
 
+.archive-pdf-viewport {
+  width: 100%;
+  max-height: min(980px, calc(100vh - 260px));
+  overflow: auto;
+  border: 1px solid rgba(110, 207, 176, 0.22);
+  background: rgba(7, 17, 15, 0.62);
+}
+
 .archive-pdf-pages {
   display: grid;
   width: 100%;
   min-width: 0;
   min-height: min(980px, calc(100vh - 260px));
   gap: 18px;
+  justify-items: center;
+  padding: 16px;
 }
 
 .archive-pdf-page {
-  display: grid;
-  justify-items: center;
-  width: 100%;
+  position: relative;
   min-width: 0;
   margin: 0;
+  flex: 0 0 auto;
 }
 
 .archive-pdf-page canvas {
   display: block;
-  max-width: 100%;
-  height: auto;
   border: 1px solid rgba(110, 207, 176, 0.18);
   background: #ffffff;
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+}
+
+.archive-pdf-text-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  line-height: 1;
+  text-align: initial;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+}
+
+.archive-pdf-text-layer span,
+.archive-pdf-text-layer br {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+.archive-pdf-text-layer ::selection {
+  background: rgba(80, 143, 223, 0.35);
 }
 
 .document-row {
