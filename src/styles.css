@@ -1744,15 +1744,15 @@ button.catalog-row {
 
   .archive-pdf-page-controls {
     grid-column: 1;
+    justify-self: start;
   }
 
   .archive-pdf-zoom-controls {
-    grid-column: 2;
-    justify-self: end;
+    display: none;
   }
 
   .archive-pdf-open-link {
-    grid-column: 1 / -1;
+    grid-column: 2;
     justify-self: end;
   }
 

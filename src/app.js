@@ -28,6 +28,7 @@ const appScriptUrl =
 const pdfJsScriptPath = new URL("vendor/pdfjs/pdf.min.js", appScriptUrl).href;
 const pdfJsWorkerPath = new URL("vendor/pdfjs/pdf.worker.min.js", appScriptUrl).href;
 const maxPdfOutputScale = 2;
+const mobilePdfOutputScale = 2;
 const minPdfZoom = 0.5;
 const maxPdfZoom = 3;
 const pdfZoomStep = 0.1;
@@ -568,7 +569,8 @@ async function renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersio
   const containerWidth = Math.floor(pages.clientWidth);
   if (!containerWidth) return;
 
-  const outputScale = Math.min(Math.max(window.devicePixelRatio || 1, 1.5), maxPdfOutputScale);
+  const minimumOutputScale = mobileViewport.matches ? mobilePdfOutputScale : 1.5;
+  const outputScale = Math.min(Math.max(window.devicePixelRatio || 1, minimumOutputScale), maxPdfOutputScale);
   const nextPages = document.createDocumentFragment();
 
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
