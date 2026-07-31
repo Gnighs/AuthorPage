@@ -1231,6 +1231,107 @@ button.catalog-row {
   background: rgba(16, 26, 23, 0.76);
 }
 
+.archive-pdf-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.archive-pdf-page-controls {
+  display: inline-grid;
+  grid-column: 1;
+  grid-template-columns: 34px minmax(92px, auto) 34px;
+  align-items: center;
+  justify-self: start;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(7, 17, 15, 0.72);
+}
+
+.archive-pdf-zoom-controls {
+  display: inline-grid;
+  grid-column: 2;
+  grid-template-columns: 34px minmax(58px, auto) 34px;
+  align-items: center;
+  justify-self: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(7, 17, 15, 0.72);
+}
+
+.archive-pdf-control {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: var(--line-bright);
+  font: inherit;
+  cursor: pointer;
+}
+
+.archive-pdf-control:hover,
+.archive-pdf-control:focus-visible {
+  background: rgba(110, 207, 176, 0.12);
+  color: var(--text);
+  outline: none;
+}
+
+.archive-pdf-control:disabled {
+  color: rgba(191, 218, 208, 0.32);
+  cursor: default;
+}
+
+.archive-pdf-zoom-label {
+  min-width: 58px;
+  padding: 0 10px;
+  border-right: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.archive-pdf-page-label {
+  min-width: 92px;
+  padding: 0 10px;
+  border-right: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.archive-pdf-open-link {
+  grid-column: 3;
+  justify-self: end;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(7, 17, 15, 0.72);
+  color: var(--line-bright);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+  line-height: 34px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.archive-pdf-open-link:hover,
+.archive-pdf-open-link:focus-visible {
+  background: rgba(110, 207, 176, 0.12);
+  color: var(--text);
+  outline: none;
+}
+
 .archive-pdf-viewport {
   width: 100%;
   max-height: min(980px, calc(100vh - 260px));
@@ -1635,6 +1736,24 @@ button.catalog-row {
     flex: 0 0 auto;
     min-height: 36px;
     padding-inline: 10px;
+  }
+
+  .archive-pdf-toolbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .archive-pdf-page-controls {
+    grid-column: 1;
+  }
+
+  .archive-pdf-zoom-controls {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .archive-pdf-open-link {
+    grid-column: 1 / -1;
+    justify-self: end;
   }
 
   .breadcrumbs {

@@ -27,6 +27,11 @@ const appScriptUrl =
   new URL("/src/app.js", window.location.href).href;
 const pdfJsScriptPath = new URL("vendor/pdfjs/pdf.min.js", appScriptUrl).href;
 const pdfJsWorkerPath = new URL("vendor/pdfjs/pdf.worker.min.js", appScriptUrl).href;
+const maxPdfOutputScale = 2;
+const minPdfZoom = 0.5;
+const maxPdfZoom = 3;
+const pdfZoomStep = 0.1;
+const pdfRenderStatusDelay = 1200;
 let activeSummaryView = "station";
 let activePdfViewerId = 0;
 let pdfRenderSequence = 0;
@@ -450,6 +455,62 @@ function documentViewer(file) {
   status.className = "archive-pdf-status";
   status.textContent = "Loading PDF";
 
+  const toolbar = document.createElement("div");
+  toolbar.className = "archive-pdf-toolbar";
+
+  const pageControls = document.createElement("div");
+  pageControls.className = "archive-pdf-page-controls";
+
+  const previousPage = document.createElement("button");
+  previousPage.type = "button";
+  previousPage.className = "archive-pdf-control";
+  previousPage.textContent = "<";
+  previousPage.setAttribute("aria-label", "Previous page");
+
+  const pageLabel = document.createElement("span");
+  pageLabel.className = "archive-pdf-page-label";
+  pageLabel.setAttribute("aria-live", "polite");
+  pageLabel.textContent = "Page 1 / 1";
+
+  const nextPage = document.createElement("button");
+  nextPage.type = "button";
+  nextPage.className = "archive-pdf-control";
+  nextPage.textContent = ">";
+  nextPage.setAttribute("aria-label", "Next page");
+
+  pageControls.append(previousPage, pageLabel, nextPage);
+
+  const zoomControls = document.createElement("div");
+  zoomControls.className = "archive-pdf-zoom-controls";
+
+  const zoomOut = document.createElement("button");
+  zoomOut.type = "button";
+  zoomOut.className = "archive-pdf-control";
+  zoomOut.textContent = "-";
+  zoomOut.setAttribute("aria-label", "Zoom out");
+
+  const zoomLabel = document.createElement("span");
+  zoomLabel.className = "archive-pdf-zoom-label";
+  zoomLabel.setAttribute("aria-live", "polite");
+  zoomLabel.textContent = "100%";
+
+  const zoomIn = document.createElement("button");
+  zoomIn.type = "button";
+  zoomIn.className = "archive-pdf-control";
+  zoomIn.textContent = "+";
+  zoomIn.setAttribute("aria-label", "Zoom in");
+
+  zoomControls.append(zoomOut, zoomLabel, zoomIn);
+
+  const openPdfLink = document.createElement("a");
+  openPdfLink.className = "archive-pdf-open-link";
+  openPdfLink.href = directFileHref(file);
+  openPdfLink.target = "_blank";
+  openPdfLink.rel = "noopener";
+  openPdfLink.textContent = "Open PDF";
+
+  toolbar.append(pageControls, zoomControls, openPdfLink);
+
   const pages = document.createElement("div");
   pages.className = "archive-pdf-pages";
   pages.setAttribute("aria-label", `${plainText(file.title)} PDF`);
@@ -458,8 +519,16 @@ function documentViewer(file) {
   viewport.className = "archive-pdf-viewport";
   viewport.append(pages);
 
-  article.append(status, viewport);
-  renderPdfViewer(file, article, pages, status);
+  article.append(toolbar, status, viewport);
+  renderPdfViewer(file, article, pages, status, {
+    previousPage,
+    pageLabel,
+    nextPage,
+    zoomOut,
+    zoomIn,
+    zoomLabel,
+    viewport
+  });
   return article;
 }
 
@@ -493,14 +562,14 @@ function loadPdfJs() {
   return pdfJsLoadPromise;
 }
 
-async function renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersion) {
+async function renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersion, zoom) {
   if (!pdfViewerIsActive(viewerId, article)) return;
 
-  pages.replaceChildren();
   const containerWidth = Math.floor(pages.clientWidth);
   if (!containerWidth) return;
 
-  const outputScale = Math.min(window.devicePixelRatio || 1, 2);
+  const outputScale = Math.min(Math.max(window.devicePixelRatio || 1, 1.5), maxPdfOutputScale);
+  const nextPages = document.createDocumentFragment();
 
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
@@ -509,13 +578,15 @@ async function renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersio
     if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
 
     const baseViewport = page.getViewport({ scale: 1 });
-    const scale = containerWidth / baseViewport.width;
+    const fitScale = containerWidth / baseViewport.width;
+    const scale = fitScale * zoom;
     const viewport = page.getViewport({ scale });
 
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d", { alpha: false });
     const pageShell = document.createElement("figure");
     pageShell.className = "archive-pdf-page";
+    pageShell.dataset.pageNumber = String(pageNumber);
     pageShell.setAttribute("aria-label", `Page ${pageNumber} of ${pdf.numPages}`);
     pageShell.style.width = `${Math.floor(viewport.width)}px`;
     pageShell.style.height = `${Math.floor(viewport.height)}px`;
@@ -531,7 +602,7 @@ async function renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersio
     textLayer.style.height = `${Math.floor(viewport.height)}px`;
 
     pageShell.append(canvas, textLayer);
-    pages.append(pageShell);
+    nextPages.append(pageShell);
 
     await page.render({
       canvasContext: context,
@@ -551,11 +622,18 @@ async function renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersio
     }).promise;
     if (!pdfViewerIsActive(viewerId, article) || renderVersion !== article.dataset.renderVersion) return;
   }
+
+  pages.replaceChildren(nextPages);
 }
 
-async function renderPdfViewer(file, article, pages, status) {
+async function renderPdfViewer(file, article, pages, status, controls) {
   const viewerId = (activePdfViewerId += 1);
   let pdf = null;
+  let zoom = 1;
+  let currentPage = 1;
+  let isRendering = false;
+  let needsRender = false;
+  let scrollUpdateFrame = 0;
 
   try {
     const pdfjs = await loadPdfJs();
@@ -569,18 +647,134 @@ async function renderPdfViewer(file, article, pages, status) {
     status.hidden = true;
     article.removeAttribute("aria-busy");
 
+    const syncZoomControls = () => {
+      controls.zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
+      controls.zoomOut.disabled = isRendering || zoom <= minPdfZoom + 0.001;
+      controls.zoomIn.disabled = isRendering || zoom >= maxPdfZoom - 0.001;
+    };
+    const syncPageControls = () => {
+      const totalPages = pdf?.numPages ?? 1;
+      controls.pageLabel.textContent = `Page ${currentPage} / ${totalPages}`;
+      controls.previousPage.disabled = currentPage <= 1;
+      controls.nextPage.disabled = currentPage >= totalPages;
+    };
+    const updateCurrentPageFromScroll = () => {
+      const pageElements = Array.from(pages.querySelectorAll(".archive-pdf-page"));
+      if (!pageElements.length) return;
+
+      const viewportRect = controls.viewport.getBoundingClientRect();
+      const viewportCenter = viewportRect.top + viewportRect.height / 2;
+      let nearestPage = currentPage;
+      let nearestDistance = Number.POSITIVE_INFINITY;
+
+      pageElements.forEach((pageElement) => {
+        const rect = pageElement.getBoundingClientRect();
+        const pageCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(pageCenter - viewportCenter);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestPage = Number(pageElement.dataset.pageNumber) || nearestPage;
+        }
+      });
+
+      if (nearestPage !== currentPage) {
+        currentPage = nearestPage;
+        syncPageControls();
+      }
+    };
+    const scheduleCurrentPageUpdate = () => {
+      if (scrollUpdateFrame) return;
+      scrollUpdateFrame = window.requestAnimationFrame(() => {
+        scrollUpdateFrame = 0;
+        updateCurrentPageFromScroll();
+      });
+    };
+    const scrollToPage = (pageNumber) => {
+      const targetPage = pages.querySelector(`[data-page-number="${pageNumber}"]`);
+      if (!targetPage) return;
+      controls.viewport.scrollTo({
+        top: targetPage.offsetTop - pages.offsetTop,
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
+      });
+    };
+
     const renderCurrentSize = async () => {
       if (!pdfViewerIsActive(viewerId, article)) return;
+      if (isRendering) {
+        needsRender = true;
+        return;
+      }
+      isRendering = true;
+      syncZoomControls();
       const renderVersion = String((pdfRenderSequence += 1));
+      const hasRenderedPages = pages.hasChildNodes();
+      let renderStatusTimeout = null;
       article.dataset.renderVersion = renderVersion;
-      status.hidden = false;
       status.textContent = "Rendering PDF";
-      await renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersion);
-      if (pdfViewerIsActive(viewerId, article) && renderVersion === article.dataset.renderVersion) {
+      if (hasRenderedPages) {
         status.hidden = true;
+        renderStatusTimeout = window.setTimeout(() => {
+          if (pdfViewerIsActive(viewerId, article) && renderVersion === article.dataset.renderVersion) {
+            status.hidden = false;
+          }
+        }, pdfRenderStatusDelay);
+      } else {
+        status.hidden = false;
+      }
+      try {
+        await renderPdfPages(pdfjs, pdf, article, pages, viewerId, renderVersion, zoom);
+        if (pdfViewerIsActive(viewerId, article) && renderVersion === article.dataset.renderVersion) {
+          status.hidden = true;
+          updateCurrentPageFromScroll();
+          syncPageControls();
+        }
+      } finally {
+        if (renderStatusTimeout) window.clearTimeout(renderStatusTimeout);
+        isRendering = false;
+        syncZoomControls();
+      }
+      if (needsRender && pdfViewerIsActive(viewerId, article)) {
+        needsRender = false;
+        await renderCurrentSize();
       }
     };
 
+    const changeZoom = async (step) => {
+      if (isRendering) return;
+      const nextZoom = Math.max(minPdfZoom, Math.min(maxPdfZoom, zoom + step));
+      if (Math.abs(nextZoom - zoom) < 0.001) return;
+
+      const scrollRange = controls.viewport.scrollHeight - controls.viewport.clientHeight;
+      const previousScrollRatio = scrollRange > 0 ? controls.viewport.scrollTop / scrollRange : 0;
+      zoom = Math.round(nextZoom * 10) / 10;
+      syncZoomControls();
+      await renderCurrentSize();
+
+      const nextScrollRange = controls.viewport.scrollHeight - controls.viewport.clientHeight;
+      controls.viewport.scrollTop = previousScrollRatio * nextScrollRange;
+      updateCurrentPageFromScroll();
+    };
+
+    controls.zoomOut.addEventListener("click", () => {
+      changeZoom(-pdfZoomStep).catch((error) => {
+        console.error("PDF zoom unavailable", error);
+      });
+    });
+    controls.zoomIn.addEventListener("click", () => {
+      changeZoom(pdfZoomStep).catch((error) => {
+        console.error("PDF zoom unavailable", error);
+      });
+    });
+    controls.previousPage.addEventListener("click", () => {
+      scrollToPage(Math.max(1, currentPage - 1));
+    });
+    controls.nextPage.addEventListener("click", () => {
+      scrollToPage(Math.min(pdf.numPages, currentPage + 1));
+    });
+    controls.viewport.addEventListener("scroll", scheduleCurrentPageUpdate, { passive: true });
+
+    syncZoomControls();
+    syncPageControls();
     await renderCurrentSize();
   } catch (error) {
     console.error("PDF preview unavailable", error);
@@ -616,7 +810,7 @@ function renderDocuments(route) {
     documentDirectLink.href = directFileHref(route.document);
     documentsTitle.innerHTML = route.document.title;
     activeSectionKicker.textContent = route.document.archiveId;
-    documentDirectLink.hidden = false;
+    documentDirectLink.hidden = true;
     documentList.className = "document-list layout-viewer";
     replaceDocumentList(documentViewer(route.document));
     return;
