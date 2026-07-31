@@ -27,8 +27,8 @@ const appScriptUrl =
   new URL("/src/app.js", window.location.href).href;
 const pdfJsScriptPath = new URL("vendor/pdfjs/pdf.min.js", appScriptUrl).href;
 const pdfJsWorkerPath = new URL("vendor/pdfjs/pdf.worker.min.js", appScriptUrl).href;
-const maxPdfOutputScale = 2;
-const mobilePdfOutputScale = 2;
+const maxPdfOutputScale = 4;
+const mobilePdfOutputScale = 4;
 const minPdfZoom = 0.5;
 const maxPdfZoom = 3;
 const pdfZoomStep = 0.1;
