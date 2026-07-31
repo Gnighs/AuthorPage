@@ -459,22 +459,11 @@ function documentViewer(file) {
   return article;
 }
 
-function debounce(callback, delay = 150) {
-  let timeout = null;
-  return () => {
-    window.clearTimeout(timeout);
-    timeout = window.setTimeout(callback, delay);
-  };
-}
-
 function pdfViewerIsActive(viewerId, article) {
   return viewerId === activePdfViewerId && article.isConnected;
 }
 
 function replaceDocumentList(...children) {
-  Array.from(documentList.querySelectorAll(".archive-document-viewer")).forEach((viewer) => {
-    viewer.dispatchEvent(new Event("archive-pdf-disconnect"));
-  });
   documentList.replaceChildren(...children);
 }
 
@@ -558,14 +547,6 @@ async function renderPdfViewer(file, article, pages, status) {
     status.hidden = true;
     article.removeAttribute("aria-busy");
 
-    const showRenderError = (error) => {
-      console.error("PDF render unavailable", error);
-      if (!pdfViewerIsActive(viewerId, article)) return;
-      article.removeAttribute("aria-busy");
-      status.hidden = false;
-      status.textContent = "PDF preview unavailable. Use Open PDF to view the file.";
-    };
-
     const renderCurrentSize = async () => {
       if (!pdfViewerIsActive(viewerId, article)) return;
       const renderVersion = String((pdfRenderSequence += 1));
@@ -577,33 +558,8 @@ async function renderPdfViewer(file, article, pages, status) {
         status.hidden = true;
       }
     };
-    const queueRender = () => {
-      renderCurrentSize().catch(showRenderError);
-    };
 
     await renderCurrentSize();
-
-    const handleResize = debounce(queueRender);
-    const resizeObserver =
-      "ResizeObserver" in window
-        ? new ResizeObserver(handleResize)
-        : null;
-    if (resizeObserver) {
-      resizeObserver.observe(pages);
-    } else {
-      window.addEventListener("resize", handleResize);
-    }
-    article.addEventListener(
-      "archive-pdf-disconnect",
-      () => {
-        if (resizeObserver) {
-          resizeObserver.disconnect();
-        } else {
-          window.removeEventListener("resize", handleResize);
-        }
-      },
-      { once: true }
-    );
   } catch (error) {
     console.error("PDF preview unavailable", error);
     if (!pdfViewerIsActive(viewerId, article)) return;
