@@ -1245,12 +1245,15 @@ button.catalog-row {
 }
 
 .archive-pdf-page-controls {
+  --archive-pdf-page-label-width: 92px;
   display: inline-grid;
   grid-column: 1;
-  grid-template-columns: 34px minmax(92px, auto) 34px;
+  grid-template-columns: 34px var(--archive-pdf-page-label-width) 34px;
   align-items: center;
   justify-self: start;
+  width: calc(68px + var(--archive-pdf-page-label-width));
   overflow: hidden;
+  white-space: nowrap;
   border: 1px solid var(--line);
   border-radius: 4px;
   background: rgba(7, 17, 15, 0.72);
@@ -1304,7 +1307,8 @@ button.catalog-row {
 }
 
 .archive-pdf-page-label {
-  min-width: 92px;
+  width: 100%;
+  min-width: 0;
   padding: 0 10px;
   border-right: 1px solid var(--line);
   border-left: 1px solid var(--line);
@@ -1312,6 +1316,10 @@ button.catalog-row {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 0.72rem;
   text-align: center;
+}
+
+.archive-pdf-leading-placeholder {
+  visibility: hidden;
 }
 
 .archive-pdf-open-link {

@@ -522,6 +522,7 @@ function documentViewer(file) {
 
   article.append(toolbar, status, viewport);
   renderPdfViewer(file, article, pages, status, {
+    pageControls,
     previousPage,
     pageLabel,
     nextPage,
@@ -657,8 +658,24 @@ async function renderPdfViewer(file, article, pages, status, controls) {
     const syncPageControls = () => {
       const totalPages = pdf?.numPages ?? 1;
       const pageDigits = String(totalPages).length;
-      controls.pageLabel.style.width = `${8 + pageDigits * 2}ch`;
-      controls.pageLabel.textContent = `Page ${currentPage} / ${totalPages}`;
+      const leadingPlaceholder = "0".repeat(
+        Math.max(0, pageDigits - String(currentPage).length)
+      );
+      controls.pageControls.style.setProperty(
+        "--archive-pdf-page-label-width",
+        `${8 + pageDigits * 2}ch`
+      );
+      controls.pageLabel.replaceChildren();
+      controls.pageLabel.append("Page ");
+      if (leadingPlaceholder) {
+        const placeholder = document.createElement("span");
+        placeholder.className = "archive-pdf-leading-placeholder";
+        placeholder.setAttribute("aria-hidden", "true");
+        placeholder.textContent = leadingPlaceholder;
+        controls.pageLabel.append(placeholder);
+      }
+      controls.pageLabel.append(`${currentPage} / ${totalPages}`);
+      controls.pageLabel.setAttribute("aria-label", `Page ${currentPage} of ${totalPages}`);
       controls.previousPage.disabled = currentPage <= 1;
       controls.nextPage.disabled = currentPage >= totalPages;
     };
