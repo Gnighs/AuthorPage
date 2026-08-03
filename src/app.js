@@ -656,6 +656,8 @@ async function renderPdfViewer(file, article, pages, status, controls) {
     };
     const syncPageControls = () => {
       const totalPages = pdf?.numPages ?? 1;
+      const pageDigits = String(totalPages).length;
+      controls.pageLabel.style.width = `${8 + pageDigits * 2}ch`;
       controls.pageLabel.textContent = `Page ${currentPage} / ${totalPages}`;
       controls.previousPage.disabled = currentPage <= 1;
       controls.nextPage.disabled = currentPage >= totalPages;
