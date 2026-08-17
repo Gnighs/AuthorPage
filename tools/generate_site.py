@@ -30,6 +30,8 @@ VALID_LAYOUTS = {"cards", "list"}
 VALID_KINDS = {"catalog", "index"}
 VALID_NAVIGABLE_STATUSES = {"Cleared", "Classified"}
 VALID_FILE_STATUSES = {"Cleared", "InProgress", "Classified"}
+VALID_BOOK_STATUSES = {"released", "coming-soon", "wip"}
+BOOK_DETAIL_STATUSES = {"released", "coming-soon"}
 STATUS_DETAILS = {
     "Cleared": {
         "className": "cleared",
@@ -65,7 +67,8 @@ DEFAULT_BOOKS = [
         "imageUrl": DEFAULT_BOOK_COVER,
         "highlightColor": "#4f6f59",
         "amazonUrl": "",
-        "published": False,
+        "status": "wip",
+        "progressLabel": "WIP",
     }
 ]
 
@@ -518,7 +521,7 @@ def build_manifest():
 def validate_book_url(value, source, field, required=False, absolute=False):
     url = str(value or "").strip()
     if required and not url:
-        raise SystemExit(f"A published book in {source} is missing {field}.")
+        raise SystemExit(f"A released book in {source} is missing {field}.")
     if url and absolute:
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
@@ -546,7 +549,8 @@ def normalize_book(raw_book, index, source):
     series = str(raw_book.get("series") or "").strip()
     short_description = str(raw_book.get("shortDescription") or "").strip()
     blurb = str(raw_book.get("blurb") or "WIP").strip()
-    published = bool(raw_book.get("published", False))
+    status = str(raw_book.get("status") or "").strip()
+    progress_label = str(raw_book.get("progressLabel") or "").strip()
     current = bool(raw_book.get("current", False))
     date = str(raw_book.get("date") or "Unknown").strip()
     image_url = validate_book_url(
@@ -559,12 +563,17 @@ def normalize_book(raw_book, index, source):
         raw_book.get("amazonUrl"),
         source,
         "amazonUrl",
-        required=published,
-        absolute=published,
+        required=status == "released",
+        absolute=status in BOOK_DETAIL_STATUSES,
     )
 
     if not title:
         raise SystemExit(f"Book item #{index} in {source} is missing title.")
+    if status not in VALID_BOOK_STATUSES:
+        raise SystemExit(
+            f"Book '{title}' in {source} has invalid status '{status}'. "
+            "Use released, coming-soon, or wip."
+        )
     slug = validate_book_slug(raw_book.get("slug"), title, source)
     if not series:
         raise SystemExit(f"Book '{title}' in {source} is missing series.")
@@ -580,6 +589,13 @@ def normalize_book(raw_book, index, source):
         image_url = DEFAULT_BOOK_COVER
     if not highlight_color:
         raise SystemExit(f"Book '{title}' in {source} is missing highlightColor.")
+    if not progress_label:
+        progress_label = {
+            "released": f"Published in {date}",
+            "coming-soon": "Coming Soon",
+            "wip": "WIP",
+        }[status]
+    has_detail_page = status in BOOK_DETAIL_STATUSES
 
     return {
         "title": title,
@@ -590,10 +606,12 @@ def normalize_book(raw_book, index, source):
         "date": date,
         "imageUrl": image_url,
         "highlightColor": highlight_color,
-        "amazonUrl": amazon_url if published else "",
-        "published": published,
+        "amazonUrl": amazon_url if has_detail_page else "",
+        "status": status,
+        "progressLabel": progress_label,
+        "hasDetailPage": has_detail_page,
         "current": current,
-        "detailUrl": f"books/{slug}/index.html",
+        "detailUrl": f"books/{slug}/index.html" if has_detail_page else "",
     }
 
 
@@ -667,15 +685,15 @@ def book_detail_page(book):
     )
     canonical_url = escape(absolute_site_url(f"books/{book['slug']}/"), quote=True)
     og_image = escape(absolute_book_asset(book["imageUrl"]), quote=True)
-    date_label = "Published on" if book["published"] else "Release date"
-    date = escape(f"{date_label} {book['date']}")
+    progress_label = escape(book["progressLabel"])
     cover_src = escape(relative_book_asset(book["imageUrl"]), quote=True)
     cover_alt = escape(f"{book['title']} cover", quote=True)
     blurb = book_blurb_html(book["blurb"])
     amazon_url = escape(book["amazonUrl"], quote=True)
+    action_label = "Buy on Amazon" if book["status"] == "released" else "Preorder on Amazon"
     action = (
         f'<a class="primary-link" href="{amazon_url}" '
-        'target="_blank" rel="noopener">Buy on Amazon</a>'
+        f'target="_blank" rel="noopener">{action_label}</a>'
         if book["amazonUrl"]
         else ""
     )
@@ -733,7 +751,7 @@ def book_detail_page(book):
         <div class="book-page-copy">
           <span>{series}</span>
           <h1>{title}</h1>
-          <p class="book-page-date">{date}</p>
+          <p class="book-page-date">{progress_label}</p>
           <div class="book-page-blurb">
           {blurb}
           </div>{actions}
@@ -817,6 +835,10 @@ def write_book_detail_pages(books_manifest):
     written = 0
     for book in books_manifest["items"]:
         page_path = BOOKS_DIR / book["slug"] / "index.html"
+        if not book["hasDetailPage"]:
+            if page_path.exists():
+                page_path.unlink()
+            continue
         page_path.parent.mkdir(parents=True, exist_ok=True)
         page_path.write_text(book_detail_page(book), encoding="utf-8")
         written += 1

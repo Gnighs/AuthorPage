@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1350" role="img" aria-labelledby="title desc">
   <title id="title">Work in progress book cover placeholder</title>
-  <desc id="desc">A clean placeholder cover for an unpublished book.</desc>
+  <desc id="desc">A clean placeholder cover for a work-in-progress book.</desc>
   <rect width="900" height="1350" fill="#f2f4f1"/>
   <rect x="70" y="70" width="760" height="1210" fill="none" stroke="#1b1b1b" stroke-width="6"/>
   <path d="M150 230h600M150 1080h440" stroke="#4f6f59" stroke-width="10"/>

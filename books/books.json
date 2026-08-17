@@ -8,21 +8,37 @@
     "imageUrl": "img/wip-cover.svg",
     "highlightColor": "#dbeafe",
     "amazonUrl": "https://www.amazon.com/",
-    "published": true,
+    "status": "coming-soon",
+    "progressLabel": "Working on Draft 3",
     "date": "2027",
-    "current": false
+    "current": true
   },
   {
-    "title": "Untitled Novel Project",
-    "slug": "untitled-novel-project",
+    "title": "Untitled Mafia Novel",
+    "slug": "mafia",
     "series": "The Malamelo Collection",
-    "shortDescription": "A speculative fiction project connected to the worlds, languages, and records surfaced in the OAS L-9.",
+    "shortDescription": "A novel about rival Malamelonian mafia families navigating the aftermath of Hiccups Against Godhood.",
     "blurb": "WIP",
     "imageUrl": "img/wip-cover.svg",
     "highlightColor": "#fef3c7",
     "amazonUrl": "",
-    "published": false,
+    "status": "wip",
+    "progressLabel": "Brainstorming and dumping ideas into a document.",
     "date": "Unknown",
-    "current": true
+    "current": false
+  },
+  {
+    "title": "Untitled Murder Mystery",
+    "slug": "train",
+    "series": "The Malamelo Collection",
+    "shortDescription": "A novel about a murder mystery on the train that took Cherrinogo to Malamelo prior to the events of Hiccups Against Godhood.",
+    "blurb": "WIP",
+    "imageUrl": "img/wip-cover.svg",
+    "highlightColor": "#fee2e2",
+    "amazonUrl": "",
+    "status": "wip",
+    "progressLabel": "Brainstorming and dumping ideas into a document.",
+    "date": "Unknown",
+    "current": false
   }
 ]

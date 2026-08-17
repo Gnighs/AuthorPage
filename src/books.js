@@ -2,6 +2,8 @@ const bookList = document.querySelector("#book-list");
 const latestReleaseCard = document.querySelector("#latest-release-card");
 const currentProjectCard = document.querySelector("#current-project-card");
 const booksManifest = window.booksManifest;
+const detailStatuses = new Set(["released", "coming-soon"]);
+const activeProjectStatuses = new Set(["coming-soon", "wip"]);
 
 function assetPath(path, prefix = "") {
   if (!path || /^(?:[a-z]+:)?\/\//i.test(path) || path.startsWith("/")) return path;
@@ -13,9 +15,8 @@ function bookDetailPath(book, prefix = "") {
   return assetPath(book.detailUrl, prefix);
 }
 
-function firstBlurbParagraph(book) {
-  const blurb = String(book.blurb || book.shortDescription || "WIP");
-  return blurb.split(/\n\s*\n/).find((paragraph) => paragraph.trim())?.trim() || "WIP";
+function cardDescription(book) {
+  return String(book.shortDescription || book.blurb || "WIP").trim() || "WIP";
 }
 
 function createCover(book, options = {}) {
@@ -28,10 +29,10 @@ function createCover(book, options = {}) {
   image.loading = "lazy";
   cover.append(image);
 
-  if (!book.published) {
+  if (book.status !== "released") {
     const watermark = document.createElement("span");
     watermark.className = "book-watermark";
-    watermark.textContent = "WIP";
+    watermark.textContent = book.status === "coming-soon" ? "Coming Soon" : "WIP";
     cover.append(watermark);
   }
 
@@ -39,11 +40,12 @@ function createCover(book, options = {}) {
 }
 
 function createBookItem(book, options = {}) {
-  const item = document.createElement(book.published ? "a" : "article");
-  item.className = `book-item${book.published ? " published" : " wip"}`;
+  const canOpenDetail = Boolean(book.hasDetailPage || detailStatuses.has(book.status));
+  const item = document.createElement(canOpenDetail ? "a" : "article");
+  item.className = `book-item${canOpenDetail ? " has-detail" : " wip"}`;
   item.style.setProperty("--book-highlight", book.highlightColor || "#4f6f59");
 
-  if (book.published) {
+  if (canOpenDetail) {
     item.href = bookDetailPath(book, options.detailPrefix);
   } else {
     item.setAttribute("aria-disabled", "true");
@@ -60,12 +62,12 @@ function createBookItem(book, options = {}) {
 
   const date = document.createElement("span");
   date.className = "book-date";
-  date.textContent = `${book.published ? "Publication date" : "Release date"}: ${book.date || "Unknown"}`;
+  date.textContent = book.progressLabel || statusLabel(book);
 
   const description = document.createElement("p");
-  description.textContent = firstBlurbParagraph(book);
+  description.textContent = cardDescription(book);
 
-  details.append(title, series, date, description);
+  details.append(series, title, date, description);
 
   item.append(createCover(book, options), details);
   return item;
@@ -84,6 +86,12 @@ function dateSortValue(book) {
 
 function newestBook(books) {
   return [...books].sort((first, second) => dateSortValue(second) - dateSortValue(first))[0];
+}
+
+function statusLabel(book) {
+  if (book.status === "released") return "Released";
+  if (book.status === "coming-soon") return "Coming Soon";
+  return "WIP";
 }
 
 function renderHomeFeature(wrapper, target, book) {
@@ -110,12 +118,12 @@ function renderBooks() {
   renderHomeFeature(
     latestReleaseCard?.closest("[data-home-book-feature]"),
     latestReleaseCard,
-    newestBook(books.filter((book) => book.published))
+    newestBook(books.filter((book) => book.status === "released"))
   );
   renderHomeFeature(
     currentProjectCard?.closest("[data-home-book-feature]"),
     currentProjectCard,
-    books.find((book) => book.current)
+    books.find((book) => book.current && activeProjectStatuses.has(book.status))
   );
 }
 

@@ -1,5 +1,5 @@
 window.booksManifest = {
-  "generatedAt": "2026-08-17T14:44:15.859468+00:00",
+  "generatedAt": "2026-08-17T22:42:54.487502+00:00",
   "items": [
     {
       "title": "Hiccups Against Godhood",
@@ -11,23 +11,43 @@ window.booksManifest = {
       "imageUrl": "img/wip-cover.svg",
       "highlightColor": "#dbeafe",
       "amazonUrl": "https://www.amazon.com/",
-      "published": true,
-      "current": false,
+      "status": "coming-soon",
+      "progressLabel": "Working on Draft 3",
+      "hasDetailPage": true,
+      "current": true,
       "detailUrl": "books/hiccups/index.html"
     },
     {
-      "title": "Untitled Novel Project",
-      "slug": "untitled-novel-project",
+      "title": "Untitled Mafia Novel",
+      "slug": "mafia",
       "series": "The Malamelo Collection",
-      "shortDescription": "A speculative fiction project connected to the worlds, languages, and records surfaced in the OAS L-9.",
+      "shortDescription": "A novel about rival Malamelonian mafia families navigating the aftermath of Hiccups Against Godhood.",
       "blurb": "WIP",
       "date": "Unknown",
       "imageUrl": "img/wip-cover.svg",
       "highlightColor": "#fef3c7",
       "amazonUrl": "",
-      "published": false,
-      "current": true,
-      "detailUrl": "books/untitled-novel-project/index.html"
+      "status": "wip",
+      "progressLabel": "Brainstorming and dumping ideas into a document.",
+      "hasDetailPage": false,
+      "current": false,
+      "detailUrl": ""
+    },
+    {
+      "title": "Untitled Murder Mystery",
+      "slug": "train",
+      "series": "The Malamelo Collection",
+      "shortDescription": "A novel about a murder mystery on the train that took Cherrinogo to Malamelo prior to the events of Hiccups Against Godhood.",
+      "blurb": "WIP",
+      "date": "Unknown",
+      "imageUrl": "img/wip-cover.svg",
+      "highlightColor": "#fee2e2",
+      "amazonUrl": "",
+      "status": "wip",
+      "progressLabel": "Brainstorming and dumping ideas into a document.",
+      "hasDetailPage": false,
+      "current": false,
+      "detailUrl": ""
     }
   ]
 };

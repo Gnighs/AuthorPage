@@ -394,10 +394,7 @@ a {
   display: grid;
   gap: 14px;
   width: 100%;
-  max-height: min(760px, 70vh);
-  overflow-y: auto;
   padding: 4px 0 12px;
-  scrollbar-color: var(--author-accent) transparent;
 }
 
 .book-item {
@@ -417,7 +414,7 @@ a {
   text-decoration: none;
 }
 
-.book-item.published {
+.book-item.has-detail {
   cursor: pointer;
   transition:
     border-color 160ms ease,
@@ -425,8 +422,8 @@ a {
     box-shadow 160ms ease;
 }
 
-.book-item.published:hover,
-.book-item.published:focus-visible {
+.book-item.has-detail:hover,
+.book-item.has-detail:focus-visible {
   border-color: var(--book-highlight-strong);
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--book-highlight) 68%, transparent),
@@ -1781,12 +1778,6 @@ button.catalog-row {
 
   .newsletter-form button {
     width: 100%;
-  }
-
-  .book-list {
-    max-height: none;
-    overflow: visible;
-    padding-right: 0;
   }
 
   .book-item {
