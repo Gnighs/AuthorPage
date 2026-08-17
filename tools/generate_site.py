@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import json
 import re
+import shutil
+import subprocess
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
@@ -18,6 +20,14 @@ BOOKS_DIR = PROJECT_ROOT / "books"
 BOOKS_SOURCE_PATH = BOOKS_DIR / "books.json"
 BOOKS_OUTPUT_PATH = SRC_DIR / "books-manifest.js"
 DEFAULT_BOOK_COVER = "img/wip-cover.svg"
+GENERATED_BOOK_COVER_DIR = BOOKS_DIR / "img" / "generated"
+GENERATED_BOOK_COVER_PUBLIC_DIR = "img/generated"
+BOOK_COVER_TITLE_X = 150
+BOOK_COVER_TITLE_WIDTH = 600
+BOOK_COVER_TITLE_BASE_SIZE = 100
+BOOK_COVER_TITLE_MIN_SIZE = 54
+BOOK_COVER_TITLE_MAX_SIZE = 104
+BOOK_COVER_TITLE_MEASURE_FONT = "Times-Roman"
 SITE_URL = "https://paurocapardo.com"
 CATALOG_NAME = "catalog.json"
 FILES_CATALOG = "files.json"
@@ -81,6 +91,82 @@ def title_from_slug(value):
 def slug_from_title(value):
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
     return slug or "book"
+
+
+def cover_title_words(value, max_lines=7):
+    words = str(value or "").split() or ["Untitled"]
+    if len(words) <= max_lines:
+        return words
+
+    kept = words[:max_lines]
+    kept[-1] = kept[-1].rstrip(".") + "..."
+    return kept
+
+
+def measured_text_width(text, font_size):
+    convert = shutil.which("convert")
+    if not convert:
+        return None
+
+    result = subprocess.run(
+        [
+            convert,
+            "-background",
+            "none",
+            "-fill",
+            "black",
+            "-font",
+            BOOK_COVER_TITLE_MEASURE_FONT,
+            "-pointsize",
+            str(font_size),
+            f"label:{text}",
+            "-trim",
+            "-format",
+            "%w",
+            "info:",
+        ],
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+
+    try:
+        return int(result.stdout.strip())
+    except ValueError:
+        return None
+
+
+def cover_title_font_size(lines):
+    longest = max(lines, key=len)
+    measured_width = measured_text_width(longest, BOOK_COVER_TITLE_BASE_SIZE)
+    if measured_width:
+        size = int(
+            BOOK_COVER_TITLE_BASE_SIZE
+            * BOOK_COVER_TITLE_WIDTH
+            / measured_width
+        )
+    else:
+        size = int(BOOK_COVER_TITLE_WIDTH / max(len(longest), 1))
+
+    return max(
+        BOOK_COVER_TITLE_MIN_SIZE,
+        min(BOOK_COVER_TITLE_MAX_SIZE, size),
+    )
+
+
+def svg_text(lines, x, start_y, line_height, css_class):
+    text_lines = []
+    for index, line in enumerate(lines):
+        text_lines.append(
+            f'  <text class="{css_class}" x="{x}" y="{start_y + (index * line_height)}">{escape(line)}</text>'
+        )
+    return "\n".join(text_lines)
+
+
+def generated_book_cover_path(slug):
+    return f"{GENERATED_BOOK_COVER_PUBLIC_DIR}/{slug}-cover.svg"
 
 
 def write_json(path, value):
@@ -615,6 +701,37 @@ def normalize_book(raw_book, index, source):
     }
 
 
+def book_uses_generated_cover(book):
+    return book["imageUrl"] == DEFAULT_BOOK_COVER
+
+
+def write_generated_book_cover(book):
+    GENERATED_BOOK_COVER_DIR.mkdir(parents=True, exist_ok=True)
+    cover_path = GENERATED_BOOK_COVER_DIR / f"{book['slug']}-cover.svg"
+    title_lines = cover_title_words(book["title"])
+    title_font_size = cover_title_font_size(title_lines)
+    title_line_height = int(title_font_size * 1.16)
+    title_start_y = 510 - int(((len(title_lines) - 1) * title_line_height) / 2)
+    title = escape(book["title"])
+
+    cover_path.write_text(
+        f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1350" role="img" aria-labelledby="title desc">
+  <title id="title">{title} book cover placeholder</title>
+  <desc id="desc">A generated placeholder cover for {title}.</desc>
+  <rect width="900" height="1350" fill="#f2f4f1"/>
+  <rect x="70" y="70" width="760" height="1210" fill="none" stroke="#1b1b1b" stroke-width="6"/>
+  <path d="M150 230h600M150 1080h440" stroke="#4f6f59" stroke-width="10"/>
+{svg_text(title_lines, BOOK_COVER_TITLE_X, title_start_y, title_line_height, "book-title")}
+  <text x="150" y="1135" fill="#5f665f" font-family="Arial, sans-serif" font-size="24" letter-spacing="4">WORK IN PROGRESS</text>
+  <style>
+    .book-title {{ fill: #1b1b1b; font-family: Georgia, serif; font-size: {title_font_size}px; }}
+  </style>
+</svg>
+""",
+        encoding="utf-8",
+    )
+
+
 def build_books_manifest():
     raw_books = read_json(BOOKS_SOURCE_PATH, DEFAULT_BOOKS)
     if not isinstance(raw_books, list):
@@ -631,6 +748,9 @@ def build_books_manifest():
                 f"Duplicate book slug '{book['slug']}' in {BOOKS_SOURCE_PATH}."
             )
         slugs.add(book["slug"])
+        if book_uses_generated_cover(book):
+            write_generated_book_cover(book)
+            book["imageUrl"] = generated_book_cover_path(book["slug"])
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "items": books,

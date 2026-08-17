@@ -379,15 +379,23 @@ a {
 
 .book-list-shell {
   display: grid;
+  gap: 36px;
   border-top: 1px solid var(--author-line);
   padding-top: 28px;
 }
 
-.book-list-shell h2 {
+.book-list-shell h2,
+.book-group h2 {
   margin: 0;
   color: var(--author-text);
   font-size: clamp(1.5rem, 3vw, 2.2rem);
   font-weight: 500;
+}
+
+.book-group {
+  display: grid;
+  gap: 14px;
+  width: 100%;
 }
 
 .book-list {
@@ -439,6 +447,7 @@ a {
 .book-cover {
   position: relative;
   display: block;
+  justify-self: start;
   width: 132px;
   aspect-ratio: 5 / 8;
   overflow: hidden;
@@ -471,6 +480,8 @@ a {
 .book-details {
   display: grid;
   gap: 8px;
+  width: 100%;
+  justify-self: stretch;
   min-width: 0;
 }
 

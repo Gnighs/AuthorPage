@@ -4,6 +4,11 @@ const currentProjectCard = document.querySelector("#current-project-card");
 const booksManifest = window.booksManifest;
 const detailStatuses = new Set(["released", "coming-soon"]);
 const activeProjectStatuses = new Set(["coming-soon", "wip"]);
+const bookSections = [
+  { status: "released", label: "Released" },
+  { status: "coming-soon", label: "Upcoming" },
+  { status: "wip", label: "Concepts" }
+];
 
 function assetPath(path, prefix = "") {
   if (!path || /^(?:[a-z]+:)?\/\//i.test(path) || path.startsWith("/")) return path;
@@ -94,6 +99,42 @@ function statusLabel(book) {
   return "WIP";
 }
 
+function createBookGroup(title, books) {
+  const section = document.createElement("section");
+  section.className = "book-group";
+
+  const heading = document.createElement("h2");
+  heading.textContent = title;
+
+  const list = document.createElement("div");
+  list.className = "book-list";
+  list.replaceChildren(...books.map((book) => createBookItem(book)));
+
+  section.append(heading, list);
+  return section;
+}
+
+function renderBookList(books) {
+  if (!bookList) return;
+
+  if (!books.length) {
+    const empty = document.createElement("p");
+    empty.className = "book-empty";
+    empty.textContent = "No books are listed yet.";
+    bookList.replaceChildren(empty);
+    return;
+  }
+
+  const content = bookSections
+    .map((section) => {
+      const sectionBooks = books.filter((book) => book.status === section.status);
+      return sectionBooks.length ? createBookGroup(section.label, sectionBooks) : null;
+    })
+    .filter(Boolean);
+
+  bookList.replaceChildren(...content);
+}
+
 function renderHomeFeature(wrapper, target, book) {
   if (!wrapper || !target || !book) return;
   target.replaceChildren(createBookItem(book, { assetPrefix: "books/", detailPrefix: "books/" }));
@@ -103,17 +144,7 @@ function renderHomeFeature(wrapper, target, book) {
 function renderBooks() {
   const books = booksManifest?.items ?? [];
 
-  if (bookList && !books.length) {
-    const empty = document.createElement("p");
-    empty.className = "book-empty";
-    empty.textContent = "No books are listed yet.";
-    bookList.replaceChildren(empty);
-    return;
-  }
-
-  if (bookList) {
-    bookList.replaceChildren(...books.map((book) => createBookItem(book)));
-  }
+  renderBookList(books);
 
   renderHomeFeature(
     latestReleaseCard?.closest("[data-home-book-feature]"),
