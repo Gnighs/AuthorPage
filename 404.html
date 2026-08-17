@@ -2,13 +2,146 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="refresh" content="0; url=/oasl9/">
-    <title>Redirecting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="The requested page could not be found on Pau Roca-Pardo's website.">
+    <link rel="canonical" href="https://paurocapardo.com/404.html">
+    <meta property="og:title" content="Page Not Found | Pau Roca-Pardo">
+    <meta property="og:description" content="The requested page could not be found on Pau Roca-Pardo's website.">
+    <meta property="og:url" content="https://paurocapardo.com/404.html">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://paurocapardo.com/icons/logo.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Page Not Found | Pau Roca-Pardo">
+    <meta name="twitter:description" content="The requested page could not be found on Pau Roca-Pardo's website.">
+    <meta name="twitter:image" content="https://paurocapardo.com/icons/logo.png">
+    <title>Page Not Found | Pau Roca-Pardo</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="stylesheet" href="/src/styles.css">
     <script>
-      window.location.replace("/oasl9/");
+      const previewArchive404 = new URLSearchParams(window.location.search).has("archive");
+      if (previewArchive404 || window.location.pathname.replace(/\/+$/, "").startsWith("/oasl9")) {
+        document.documentElement.classList.add("archive-not-found-route");
+      }
     </script>
   </head>
-  <body>
-    <a href="/oasl9/">Redirecting to OAS L-9</a>
+  <body class="author-site not-found-page">
+    <section class="author-not-found" data-author-404>
+      <header class="author-header">
+        <a class="author-name" href="/">
+          <img class="author-logo-mark" src="/icons/logo-green.png" alt="" aria-hidden="true">
+          <span>Pau Roca-Pardo</span>
+        </a>
+        <nav class="author-nav" aria-label="Primary navigation">
+          <a href="/">Home</a>
+          <a href="/books/">Books</a>
+          <a href="/about/">About</a>
+          <a href="/newsletter/">Newsletter</a>
+          <a href="/oasl9/">OAS L-9</a>
+        </nav>
+      </header>
+
+      <main class="author-main">
+        <section class="author-page-heading not-found-copy">
+          <h1>Page Not Found</h1>
+          <p>This page does not exist, or it has moved somewhere that is not publicly indexed.</p>
+          <div class="author-actions">
+            <a class="primary-link" href="/">Home</a>
+            <a class="secondary-link" href="/books/">Books</a>
+            <a class="secondary-link" href="/newsletter/">Newsletter</a>
+            <a class="secondary-link" href="/oasl9/">OAS L-9</a>
+          </div>
+        </section>
+      </main>
+
+      <footer class="author-footer">
+        <p>&copy; 2026 Pau Roca-Pardo. All rights reserved.</p>
+      </footer>
+    </section>
+
+    <section class="archive-not-found" data-archive-404 hidden>
+      <div class="scanline" aria-hidden="true"></div>
+
+      <header class="archive-site-header">
+        <a class="archive-author-name" href="/">
+          <img class="archive-logo-mark" src="/oasl9/icons/logo-archive.png" alt="" aria-hidden="true">
+          <span>Pau Roca-Pardo</span>
+        </a>
+        <nav class="archive-top-nav" aria-label="Primary navigation">
+          <a href="/">Home</a>
+          <a href="/books/">Books</a>
+          <a href="/about/">About</a>
+          <a href="/newsletter/">Newsletter</a>
+          <a aria-current="page" href="/oasl9/">OAS L-9</a>
+        </nav>
+      </header>
+
+      <header class="station-header">
+        <div class="station-mark" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div>
+          <p class="eyebrow">Public Access Terminal</p>
+          <h1><span>Orbital Archive</span> <span>Station L-9</span></h1>
+        </div>
+      </header>
+
+      <section class="station-intro" aria-label="Archive notice">
+        <p class="header-copy">
+          This archive is maintained by INES, the Integrated Neural Expert System, aboard Orbital Archive
+          Station L-9. The requested directory or file is not present in the public index.
+        </p>
+      </section>
+
+      <main class="archive-shell">
+        <nav class="navigation-bar" aria-label="Archive navigation">
+          <a class="ghost-button" href="/oasl9/">Back</a>
+          <div class="breadcrumbs">
+            <a href="/oasl9/">Archive Divisions</a>
+            <span class="breadcrumb-separator" aria-hidden="true">/</span>
+            <span aria-current="page">Unknown Directory or File</span>
+          </div>
+        </nav>
+
+        <section class="document-panel not-found-panel" aria-labelledby="archive-404-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Missing Record</p>
+              <h2 id="archive-404-title">Unknown Directory or File</h2>
+            </div>
+          </div>
+          <div class="document-list layout-list">
+            <article class="maintenance-notice">
+              <span>Index Lookup Failed</span>
+              <strong>Requested directory or file does not exist.</strong>
+              <p>The public terminal could not match this route to a known archive division, index, or file.</p>
+            </article>
+          </div>
+          <div class="archive-404-actions">
+            <a class="ghost-button" href="/oasl9/">Return to OAS L-9</a>
+            <a class="ghost-button" href="/">Home</a>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>&copy; 2026 Pau Roca-Pardo. All rights reserved.</p>
+        <p>All website content, archival documents, and PDF files are original works owned by Pau Roca-Pardo.</p>
+      </footer>
+    </section>
+
+    <script>
+      const isArchive404 = document.documentElement.classList.contains("archive-not-found-route");
+      if (isArchive404) {
+        document.body.className = "archive-site not-found-page";
+        document.querySelector("[data-author-404]").hidden = true;
+        document.querySelector("[data-archive-404]").hidden = false;
+      }
+    </script>
   </body>
 </html>

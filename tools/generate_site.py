@@ -2,6 +2,7 @@
 import json
 import re
 from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
@@ -16,10 +17,13 @@ ARCHIVE_PAGE_TEMPLATE_PATH = PROJECT_ROOT / "oasl9" / "index.html"
 BOOKS_DIR = PROJECT_ROOT / "books"
 BOOKS_SOURCE_PATH = BOOKS_DIR / "books.json"
 BOOKS_OUTPUT_PATH = SRC_DIR / "books-manifest.js"
+DEFAULT_BOOK_COVER = "img/wip-cover.svg"
+SITE_URL = "https://paurocapardo.com"
 CATALOG_NAME = "catalog.json"
 FILES_CATALOG = "files.json"
 
 SAFE_ID_PATTERN = re.compile(r"^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$")
+BOOK_SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 ARCHIVE_CODE_PATTERN = re.compile(r"^[A-Z0-9]+$")
 SHORT_FILE_ID_PATTERN = re.compile(r"^[A-Z0-9]+(?:-[A-Z0-9]+)*$")
 VALID_LAYOUTS = {"cards", "list"}
@@ -57,7 +61,8 @@ DEFAULT_BOOKS = [
             "A speculative fiction project connected to the worlds, "
             "languages, and records surfaced in the OAS L-9."
         ),
-        "imageUrl": "img/wip-cover.svg",
+        "blurb": "WIP",
+        "imageUrl": DEFAULT_BOOK_COVER,
         "highlightColor": "#4f6f59",
         "amazonUrl": "",
         "published": False,
@@ -68,6 +73,11 @@ DEFAULT_BOOKS = [
 def title_from_slug(value):
     normalized = value.replace("-", " ").replace("_", " ")
     return " ".join(word.capitalize() for word in normalized.split())
+
+
+def slug_from_title(value):
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or "book"
 
 
 def write_json(path, value):
@@ -518,6 +528,16 @@ def validate_book_url(value, source, field, required=False, absolute=False):
     return url
 
 
+def validate_book_slug(value, title, source):
+    slug = str(value or "").strip() or slug_from_title(title)
+    if not BOOK_SLUG_PATTERN.fullmatch(slug):
+        raise SystemExit(
+            f"Book '{title}' in {source} has invalid slug '{slug}'. "
+            "Use lowercase letters, numbers, and single hyphens."
+        )
+    return slug
+
+
 def normalize_book(raw_book, index, source):
     if not isinstance(raw_book, dict):
         raise SystemExit(f"Every item in {source} must be an object.")
@@ -525,10 +545,15 @@ def normalize_book(raw_book, index, source):
     title = str(raw_book.get("title") or "").strip()
     series = str(raw_book.get("series") or "").strip()
     short_description = str(raw_book.get("shortDescription") or "").strip()
+    blurb = str(raw_book.get("blurb") or "WIP").strip()
     published = bool(raw_book.get("published", False))
     current = bool(raw_book.get("current", False))
     date = str(raw_book.get("date") or "Unknown").strip()
-    image_url = validate_book_url(raw_book.get("imageUrl"), source, "imageUrl")
+    image_url = validate_book_url(
+        raw_book.get("imageUrl") or DEFAULT_BOOK_COVER,
+        source,
+        "imageUrl",
+    )
     highlight_color = str(raw_book.get("highlightColor") or "#4f6f59").strip()
     amazon_url = validate_book_url(
         raw_book.get("amazonUrl"),
@@ -540,6 +565,7 @@ def normalize_book(raw_book, index, source):
 
     if not title:
         raise SystemExit(f"Book item #{index} in {source} is missing title.")
+    slug = validate_book_slug(raw_book.get("slug"), title, source)
     if not series:
         raise SystemExit(f"Book '{title}' in {source} is missing series.")
     if not short_description:
@@ -548,21 +574,26 @@ def normalize_book(raw_book, index, source):
         )
     if not date:
         raise SystemExit(f"Book '{title}' in {source} is missing date.")
+    if not blurb:
+        blurb = "WIP"
     if not image_url:
-        raise SystemExit(f"Book '{title}' in {source} is missing imageUrl.")
+        image_url = DEFAULT_BOOK_COVER
     if not highlight_color:
         raise SystemExit(f"Book '{title}' in {source} is missing highlightColor.")
 
     return {
         "title": title,
+        "slug": slug,
         "series": series,
         "shortDescription": short_description,
+        "blurb": blurb,
         "date": date,
         "imageUrl": image_url,
         "highlightColor": highlight_color,
         "amazonUrl": amazon_url if published else "",
         "published": published,
         "current": current,
+        "detailUrl": f"books/{slug}/index.html",
     }
 
 
@@ -575,10 +606,147 @@ def build_books_manifest():
         normalize_book(raw_book, index + 1, BOOKS_SOURCE_PATH)
         for index, raw_book in enumerate(raw_books)
     ]
+    slugs = set()
+    for book in books:
+        if book["slug"] in slugs:
+            raise SystemExit(
+                f"Duplicate book slug '{book['slug']}' in {BOOKS_SOURCE_PATH}."
+            )
+        slugs.add(book["slug"])
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "items": books,
     }
+
+
+def relative_book_asset(path):
+    if not path:
+        return path
+    is_external = re.match(r"^(?:[a-z]+:)?//", path, re.IGNORECASE)
+    if is_external or path.startswith("/"):
+        return path
+    return "../" + path
+
+
+def absolute_site_url(path):
+    return f"{SITE_URL}/{path.lstrip('/')}"
+
+
+def absolute_book_asset(path):
+    if not path:
+        return ""
+    if re.match(r"^(?:[a-z]+:)?//", path, re.IGNORECASE):
+        return path
+    return absolute_site_url(f"books/{path.lstrip('/')}")
+
+
+def compact_meta_description(value):
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    return text[:157].rstrip() + "..." if len(text) > 160 else text
+
+
+def book_blurb_html(blurb):
+    paragraphs = [
+        paragraph.strip()
+        for paragraph in blurb.splitlines()
+        if paragraph.strip()
+    ]
+    return "\n          ".join(
+        f"<p>{escape(paragraph)}</p>"
+        for paragraph in paragraphs
+    )
+
+
+def book_detail_page(book):
+    title = escape(book["title"])
+    series = escape(book["series"])
+    meta_title = escape(f"{book['title']} | Pau Roca-Pardo", quote=True)
+    description = escape(
+        compact_meta_description(book["blurb"] or book["shortDescription"]),
+        quote=True,
+    )
+    canonical_url = escape(absolute_site_url(f"books/{book['slug']}/"), quote=True)
+    og_image = escape(absolute_book_asset(book["imageUrl"]), quote=True)
+    date_label = "Published on" if book["published"] else "Release date"
+    date = escape(f"{date_label} {book['date']}")
+    cover_src = escape(relative_book_asset(book["imageUrl"]), quote=True)
+    cover_alt = escape(f"{book['title']} cover", quote=True)
+    blurb = book_blurb_html(book["blurb"])
+    amazon_url = escape(book["amazonUrl"], quote=True)
+    action = (
+        f'<a class="primary-link" href="{amazon_url}" '
+        'target="_blank" rel="noopener">Buy on Amazon</a>'
+        if book["amazonUrl"]
+        else ""
+    )
+    actions = (
+        f'\n          <div class="book-page-actions">{action}</div>'
+        if action
+        else ""
+    )
+
+    return f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="{description}">
+    <link rel="canonical" href="{canonical_url}">
+    <meta property="og:title" content="{meta_title}">
+    <meta property="og:description" content="{description}">
+    <meta property="og:url" content="{canonical_url}">
+    <meta property="og:type" content="book">
+    <meta property="og:image" content="{og_image}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{meta_title}">
+    <meta name="twitter:description" content="{description}">
+    <meta name="twitter:image" content="{og_image}">
+    <title>{title} | Pau Roca-Pardo</title>
+    <link rel="icon" href="../../favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../icons/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="../../icons/apple-touch-icon.png">
+    <link rel="manifest" href="../../site.webmanifest">
+    <link rel="stylesheet" href="../../src/styles.css">
+    <script src="../../src/clean-url.js" defer></script>
+  </head>
+  <body class="author-site">
+    <header class="author-header">
+      <a class="author-name" href="../../index.html">
+        <img class="author-logo-mark" src="../../icons/logo-green.png" alt="" aria-hidden="true">
+        <span>Pau Roca-Pardo</span>
+      </a>
+      <nav class="author-nav" aria-label="Primary navigation">
+        <a href="../../index.html">Home</a>
+        <a aria-current="page" href="../index.html">Books</a>
+        <a href="../../about/index.html">About</a>
+        <a href="../../newsletter/index.html">Newsletter</a>
+        <a href="../../oasl9/index.html">OAS L-9</a>
+      </nav>
+    </header>
+
+    <main class="author-main">
+      <article class="book-page">
+        <aside class="book-page-cover" aria-label="Book cover">
+          <img src="{cover_src}" alt="{cover_alt}">
+        </aside>
+        <div class="book-page-copy">
+          <span>{series}</span>
+          <h1>{title}</h1>
+          <p class="book-page-date">{date}</p>
+          <div class="book-page-blurb">
+          {blurb}
+          </div>{actions}
+        </div>
+      </article>
+    </main>
+
+    <footer class="author-footer">
+      <p>&copy; 2026 Pau Roca-Pardo. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
+"""
 
 
 def write_js_manifest(path, namespace, manifest):
@@ -645,12 +813,23 @@ def write_archive_route_pages(archive_manifest):
     return written
 
 
+def write_book_detail_pages(books_manifest):
+    written = 0
+    for book in books_manifest["items"]:
+        page_path = BOOKS_DIR / book["slug"] / "index.html"
+        page_path.parent.mkdir(parents=True, exist_ok=True)
+        page_path.write_text(book_detail_page(book), encoding="utf-8")
+        written += 1
+    return written
+
+
 def main():
     archive_manifest = build_manifest()
     books_manifest = build_books_manifest()
     write_js_manifest(ARCHIVE_OUTPUT_PATH, "archiveManifest", archive_manifest)
     write_js_manifest(BOOKS_OUTPUT_PATH, "booksManifest", books_manifest)
     route_page_count = write_archive_route_pages(archive_manifest)
+    book_page_count = write_book_detail_pages(books_manifest)
     print(
         f"Generated {ARCHIVE_OUTPUT_PATH.relative_to(PROJECT_ROOT)} "
         f"with {len(archive_manifest['root']['items'])} top-level collections."
@@ -659,6 +838,7 @@ def main():
         f"Generated {BOOKS_OUTPUT_PATH.relative_to(PROJECT_ROOT)} "
         f"with {len(books_manifest['items'])} books."
     )
+    print(f"Generated {book_page_count} book detail pages.")
     print(f"Generated {route_page_count} archive route pages.")
 
 

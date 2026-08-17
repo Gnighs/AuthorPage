@@ -54,6 +54,17 @@ function rootRoute() {
   return { node: rootCatalog, ancestors: [], path: [], document: null, documentPath: null };
 }
 
+function unknownRoute(path) {
+  return {
+    node: null,
+    ancestors: [],
+    path,
+    document: null,
+    documentPath: null,
+    isUnknown: true
+  };
+}
+
 function formatTimestamp(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
@@ -185,7 +196,7 @@ function getRoute() {
 
   const path = parts[0] === "browse" ? parts.slice(1) : legacyPath(parts) ?? parts;
   const candidate = path ?? [];
-  return resolvePath(candidate) ?? rootRoute();
+  return resolvePath(candidate) ?? unknownRoute(candidate);
 }
 
 function routeUrl(path) {
@@ -200,7 +211,7 @@ function routeHash(path) {
 }
 
 function syncCleanUrl(route) {
-  if (localFileProtocol) return;
+  if (localFileProtocol || route.isUnknown) return;
 
   const target = routeUrl(route.documentPath ?? route.path);
   if (window.location.hash || window.location.pathname !== target) {
@@ -319,6 +330,13 @@ function emptyCatalogNotice(node) {
 }
 
 function breadcrumbData(route) {
+  if (route.isUnknown) {
+    return [
+      { label: rootCatalog.title, path: [] },
+      { label: "Unknown Directory or File" }
+    ];
+  }
+
   const nodes = [rootCatalog, ...route.ancestors.slice(1), route.node];
   const seen = [];
   const crumbs = nodes.map((node, index) => {
@@ -336,14 +354,20 @@ function breadcrumbData(route) {
 }
 
 function renderBreadcrumbs(route) {
-  const isHome = route.path.length === 0;
+  const isHome = !route.isUnknown && route.path.length === 0;
   navigationBar.hidden = isHome;
   if (isHome) {
     breadcrumbs.replaceChildren();
     return;
   }
 
-  backButton.onclick = () => navigate(route.document ? route.path : route.path.slice(0, -1));
+  backButton.onclick = () => {
+    if (route.isUnknown) {
+      navigate([]);
+      return;
+    }
+    navigate(route.document ? route.path : route.path.slice(0, -1));
+  };
   const crumbs = breadcrumbData(route);
   breadcrumbs.replaceChildren(
     ...crumbs.flatMap((crumb, index) => {
@@ -374,6 +398,11 @@ function renderBreadcrumbs(route) {
 }
 
 function renderDirectory(route) {
+  if (route.isUnknown) {
+    directorySection.hidden = true;
+    return;
+  }
+
   const node = route.node;
   const isCatalog = node.kind !== "index";
   directorySection.hidden = !isCatalog;
@@ -817,7 +846,29 @@ function maintenanceNotice(index) {
   return article;
 }
 
+function unknownArchiveNotice() {
+  const article = document.createElement("article");
+  article.className = "maintenance-notice";
+  article.innerHTML = `
+    <span>Index Lookup Failed</span>
+    <strong>Requested directory or file does not exist.</strong>
+    <p>The public terminal could not match this route to a known archive division, index, or file.</p>
+  `;
+  return article;
+}
+
 function renderDocuments(route) {
+  if (route.isUnknown) {
+    documentPanel.hidden = false;
+    documentPanel.classList.remove("viewer-active");
+    documentDirectLink.hidden = true;
+    documentsTitle.textContent = "Unknown Directory or File";
+    activeSectionKicker.textContent = "Missing Record";
+    documentList.className = "document-list layout-list";
+    replaceDocumentList(unknownArchiveNotice());
+    return;
+  }
+
   const index = route.node;
   if (index.kind !== "index") {
     documentPanel.hidden = true;

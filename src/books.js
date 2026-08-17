@@ -8,6 +8,16 @@ function assetPath(path, prefix = "") {
   return `${prefix}${path}`;
 }
 
+function bookDetailPath(book, prefix = "") {
+  if (book.slug) return `${prefix}${book.slug}/index.html`;
+  return assetPath(book.detailUrl, prefix);
+}
+
+function firstBlurbParagraph(book) {
+  const blurb = String(book.blurb || book.shortDescription || "WIP");
+  return blurb.split(/\n\s*\n/).find((paragraph) => paragraph.trim())?.trim() || "WIP";
+}
+
 function createCover(book, options = {}) {
   const cover = document.createElement("span");
   cover.className = "book-cover";
@@ -34,9 +44,7 @@ function createBookItem(book, options = {}) {
   item.style.setProperty("--book-highlight", book.highlightColor || "#4f6f59");
 
   if (book.published) {
-    item.href = book.amazonUrl;
-    item.target = "_blank";
-    item.rel = "noopener";
+    item.href = bookDetailPath(book, options.detailPrefix);
   } else {
     item.setAttribute("aria-disabled", "true");
   }
@@ -55,16 +63,9 @@ function createBookItem(book, options = {}) {
   date.textContent = `${book.published ? "Publication date" : "Release date"}: ${book.date || "Unknown"}`;
 
   const description = document.createElement("p");
-  description.textContent = book.shortDescription;
+  description.textContent = firstBlurbParagraph(book);
 
   details.append(title, series, date, description);
-
-  if (book.published) {
-    const action = document.createElement("span");
-    action.className = "book-action";
-    action.textContent = "Buy on Amazon";
-    details.append(action);
-  }
 
   item.append(createCover(book, options), details);
   return item;
@@ -87,7 +88,7 @@ function newestBook(books) {
 
 function renderHomeFeature(wrapper, target, book) {
   if (!wrapper || !target || !book) return;
-  target.replaceChildren(createBookItem(book, { assetPrefix: "books/" }));
+  target.replaceChildren(createBookItem(book, { assetPrefix: "books/", detailPrefix: "books/" }));
   wrapper.hidden = false;
 }
 
