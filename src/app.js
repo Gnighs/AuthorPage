@@ -41,7 +41,7 @@ let pdfJsLoadPromise = null;
 const stationStatusItems = [
   { label: "Archival Integrity", value: "Moderate" },
   { label: "Clearance", value: "Public-ish" },
-  { label: "Interface Language", value: "Senate Standard Shasvin" }
+  { label: "Interface Language", value: "Standard Shasvin" }
 ];
 
 const fileStatusItems = [
