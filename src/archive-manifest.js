@@ -1,6 +1,6 @@
 window.archiveManifest = {
   "station": "Orbital Archive Station L-9",
-  "generatedAt": "2026-09-22T13:20:29.987197+00:00",
+  "generatedAt": "2026-10-04T09:47:53.585750+00:00",
   "root": {
     "id": "archive",
     "archiveId": "L9",
