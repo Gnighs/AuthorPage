@@ -1,6 +1,6 @@
 window.archiveManifest = {
   "station": "Orbital Archive Station L-9",
-  "generatedAt": "2026-10-04T09:47:53.585750+00:00",
+  "generatedAt": "2026-10-07T08:10:48.305674+00:00",
   "root": {
     "id": "archive",
     "archiveId": "L9",
@@ -76,12 +76,12 @@ window.archiveManifest = {
                     "archiveId": "L9-COLO-AR29G-LANG-882-J",
                     "title": "Shasvin Reference Grammar",
                     "path": "oasl9/documents/colonial-records/AR-29G/languages/Shasvin_Reference_Grammar.pdf",
-                    "href": "",
-                    "status": "InProgress",
-                    "className": "in-progress",
-                    "statusLabel": "Work In Progress",
-                    "actionLabel": "PDF Unavailable",
-                    "isAvailable": false
+                    "href": "/oasl9/documents/colonial-records/AR-29G/languages/Shasvin_Reference_Grammar.pdf",
+                    "status": "Cleared",
+                    "className": "cleared",
+                    "statusLabel": "Current Archive Copy",
+                    "actionLabel": "View PDF",
+                    "isAvailable": true
                   },
                   {
                     "id": "457-I",
