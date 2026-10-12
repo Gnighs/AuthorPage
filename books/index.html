@@ -43,11 +43,20 @@
     <main class="author-main">
       <section class="author-page-heading">
         <h1>Books</h1>
+        <div class="book-view-tabs" role="tablist" aria-label="Book views">
+          <button id="books-cards-tab" class="book-view-tab" type="button" role="tab" aria-selected="true" aria-controls="book-list">Cards</button>
+          <button id="books-map-tab" class="book-view-tab" type="button" role="tab" aria-selected="false" aria-controls="book-map" tabindex="-1">Map</button>
+        </div>
       </section>
 
       <section class="book-list-shell" aria-labelledby="book-list-title">
         <h2 id="book-list-title" class="visually-hidden">Book List</h2>
         <div id="book-list" class="book-list" aria-live="polite"></div>
+        <section id="book-map" class="book-map" aria-labelledby="book-map-heading" hidden>
+          <h2 id="book-map-heading" class="visually-hidden">The Anserium Novels</h2>
+          <div class="book-map-canvas"></div>
+          <ul class="book-map-accessible-list visually-hidden"></ul>
+        </section>
       </section>
     </main>
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import math
 import re
 import shutil
 import subprocess
@@ -79,6 +80,8 @@ DEFAULT_BOOKS = [
         "amazonUrl": "",
         "status": "wip",
         "progressLabel": "WIP",
+        "readingPrerequisites": [],
+        "inWorldDate": None,
     }
 ]
 
@@ -639,6 +642,8 @@ def normalize_book(raw_book, index, source):
     progress_label = str(raw_book.get("progressLabel") or "").strip()
     current = bool(raw_book.get("current", False))
     date = str(raw_book.get("date") or "Unknown").strip()
+    reading_prerequisites = raw_book.get("readingPrerequisites", [])
+    in_world_date = raw_book.get("inWorldDate")
     image_url = validate_book_url(
         raw_book.get("imageUrl") or DEFAULT_BOOK_COVER,
         source,
@@ -669,6 +674,31 @@ def normalize_book(raw_book, index, source):
         )
     if not date:
         raise SystemExit(f"Book '{title}' in {source} is missing date.")
+    if not isinstance(reading_prerequisites, list):
+        raise SystemExit(
+            f"Book '{title}' in {source} must have a readingPrerequisites list."
+        )
+    normalized_prerequisites = []
+    for prerequisite in reading_prerequisites:
+        prerequisite_slug = str(prerequisite or "").strip()
+        if not prerequisite_slug:
+            raise SystemExit(
+                f"Book '{title}' in {source} has an empty reading prerequisite."
+            )
+        if prerequisite_slug in normalized_prerequisites:
+            raise SystemExit(
+                f"Book '{title}' in {source} lists duplicate prerequisite "
+                f"'{prerequisite_slug}'."
+            )
+        normalized_prerequisites.append(prerequisite_slug)
+    if in_world_date is not None and (
+        isinstance(in_world_date, bool)
+        or not isinstance(in_world_date, (int, float))
+        or not math.isfinite(in_world_date)
+    ):
+        raise SystemExit(
+            f"Book '{title}' in {source} must have a numeric or null inWorldDate."
+        )
     if not blurb:
         blurb = "WIP"
     if not image_url:
@@ -695,6 +725,8 @@ def normalize_book(raw_book, index, source):
         "amazonUrl": amazon_url if has_detail_page else "",
         "status": status,
         "progressLabel": progress_label,
+        "readingPrerequisites": normalized_prerequisites,
+        "inWorldDate": in_world_date,
         "hasDetailPage": has_detail_page,
         "current": current,
         "detailUrl": f"books/{slug}/index.html" if has_detail_page else "",
@@ -751,6 +783,37 @@ def build_books_manifest():
         if book_uses_generated_cover(book):
             write_generated_book_cover(book)
             book["imageUrl"] = generated_book_cover_path(book["slug"])
+    book_by_slug = {book["slug"]: book for book in books}
+    for book in books:
+        if book["slug"] in book["readingPrerequisites"]:
+            raise SystemExit(
+                f"Book '{book['title']}' cannot list itself as a reading prerequisite."
+            )
+        for prerequisite in book["readingPrerequisites"]:
+            if prerequisite not in book_by_slug:
+                raise SystemExit(
+                    f"Book '{book['title']}' references unknown reading prerequisite "
+                    f"'{prerequisite}'."
+                )
+
+    visiting = set()
+    visited = set()
+
+    def visit(slug):
+        if slug in visiting:
+            raise SystemExit(
+                f"Reading prerequisite cycle detected involving '{slug}'."
+            )
+        if slug in visited:
+            return
+        visiting.add(slug)
+        for prerequisite in book_by_slug[slug]["readingPrerequisites"]:
+            visit(prerequisite)
+        visiting.remove(slug)
+        visited.add(slug)
+
+    for book in books:
+        visit(book["slug"])
     return {
         "generatedAt": datetime.now(timezone.utc).isoformat(),
         "items": books,

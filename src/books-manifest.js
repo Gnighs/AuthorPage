@@ -1,5 +1,5 @@
 window.booksManifest = {
-  "generatedAt": "2026-10-07T08:10:48.837184+00:00",
+  "generatedAt": "2026-10-11T23:56:12.285144+00:00",
   "items": [
     {
       "title": "Hiccups Against Godhood",
@@ -9,10 +9,12 @@ window.booksManifest = {
       "blurb": "Beles\u2019s first week as captain is going terribly. Already struggling to earn the respect of her crew, she reluctantly agrees to feed a mysterious blue liquid to Malamelo\u2014the sea behemoth carrying her towering city across the ocean.\n\nChaos erupts when Malamelo starts glowing and hiccuping, causing city-wide earthquakes and the hasty formation of a cult convinced these are signs of divine punishment.\n\nBeles must figure out where the potion came from and find an antidote before Malamelo shakes the city off its back. Soon, she is sought out by a peculiar woman who speaks strangely, knows far too much, and casually threatens to kill her.",
       "date": "2027",
       "imageUrl": "img/generated/hiccups-cover.svg",
-      "highlightColor": "#dbeafe",
+      "highlightColor": "#c9e1ff",
       "amazonUrl": "https://www.amazon.com/",
       "status": "coming-soon",
       "progressLabel": "Working on Draft 3",
+      "readingPrerequisites": [],
+      "inWorldDate": 2,
       "hasDetailPage": true,
       "current": true,
       "detailUrl": "books/hiccups/index.html"
@@ -29,6 +31,30 @@ window.booksManifest = {
       "amazonUrl": "",
       "status": "wip",
       "progressLabel": "Brainstorming and dumping ideas into a document.",
+      "readingPrerequisites": [
+        "hiccups"
+      ],
+      "inWorldDate": 3,
+      "hasDetailPage": false,
+      "current": false,
+      "detailUrl": ""
+    },
+    {
+      "title": "Untitled Patz Sequel",
+      "slug": "patz",
+      "series": "The ??? Collection",
+      "shortDescription": "A novel that follows Patz's plot after the events of Hiccups Against Godhood.",
+      "blurb": "WIP",
+      "date": "Unknown",
+      "imageUrl": "img/generated/patz-cover.svg",
+      "highlightColor": "#fef3c7",
+      "amazonUrl": "",
+      "status": "wip",
+      "progressLabel": "Brainstorming and dumping ideas into a document.",
+      "readingPrerequisites": [
+        "hiccups"
+      ],
+      "inWorldDate": 3,
       "hasDetailPage": false,
       "current": false,
       "detailUrl": ""
@@ -45,6 +71,10 @@ window.booksManifest = {
       "amazonUrl": "",
       "status": "wip",
       "progressLabel": "Brainstorming and dumping ideas into a document.",
+      "readingPrerequisites": [
+        "hiccups"
+      ],
+      "inWorldDate": 1,
       "hasDetailPage": false,
       "current": false,
       "detailUrl": ""

@@ -6,11 +6,13 @@
     "shortDescription": "When a mysterious potion causes Malamelo, the sea behemoth carrying a towering city across the ocean, to hiccup with city-shaking force, Beles must find an antidote before her home collapses—or someone ties the mess back to her.",
     "blurb": "Beles’s first week as captain is going terribly. Already struggling to earn the respect of her crew, she reluctantly agrees to feed a mysterious blue liquid to Malamelo—the sea behemoth carrying her towering city across the ocean.\n\nChaos erupts when Malamelo starts glowing and hiccuping, causing city-wide earthquakes and the hasty formation of a cult convinced these are signs of divine punishment.\n\nBeles must figure out where the potion came from and find an antidote before Malamelo shakes the city off its back. Soon, she is sought out by a peculiar woman who speaks strangely, knows far too much, and casually threatens to kill her.",
     "imageUrl": "img/wip-cover.svg",
-    "highlightColor": "#dbeafe",
+    "highlightColor": "#c9e1ff",
     "amazonUrl": "https://www.amazon.com/",
     "status": "coming-soon",
     "progressLabel": "Working on Draft 3",
     "date": "2027",
+    "readingPrerequisites": [],
+    "inWorldDate": 2,
     "current": true
   },
   {
@@ -25,6 +27,24 @@
     "status": "wip",
     "progressLabel": "Brainstorming and dumping ideas into a document.",
     "date": "Unknown",
+    "readingPrerequisites": ["hiccups"],
+    "inWorldDate": 3,
+    "current": false
+  },
+    {
+    "title": "Untitled Patz Sequel",
+    "slug": "patz",
+    "series": "The ??? Collection",
+    "shortDescription": "A novel that follows Patz's plot after the events of Hiccups Against Godhood.",
+    "blurb": "WIP",
+    "imageUrl": "img/wip-cover.svg",
+    "highlightColor": "#fef3c7",
+    "amazonUrl": "",
+    "status": "wip",
+    "progressLabel": "Brainstorming and dumping ideas into a document.",
+    "date": "Unknown",
+    "readingPrerequisites": ["hiccups"],
+    "inWorldDate": 3,
     "current": false
   },
   {
@@ -39,6 +59,8 @@
     "status": "wip",
     "progressLabel": "Brainstorming and dumping ideas into a document.",
     "date": "Unknown",
+    "readingPrerequisites": ["hiccups"],
+    "inWorldDate": 1,
     "current": false
   }
 ]

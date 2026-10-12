@@ -379,23 +379,282 @@ a {
 
 .book-list-shell {
   display: grid;
-  gap: 36px;
-  border-top: 1px solid var(--author-line);
-  padding-top: 28px;
+  gap: 28px;
+  padding-top: 0;
 }
 
-.book-list-shell h2,
-.book-group h2 {
+.book-view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.book-view-tab {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--author-accent-dark);
+  border-radius: 4px;
+  padding: 0 18px;
+  background: transparent;
+  color: var(--author-accent-dark);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.book-view-tab:hover,
+.book-view-tab:focus-visible,
+.book-view-tab[aria-selected="true"] {
+  border-color: var(--author-accent-dark);
+  background: var(--author-accent-dark);
+  color: #ffffff;
+  outline: none;
+}
+
+.book-map {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.book-map h2 {
+  margin: 0;
+  color: var(--author-text);
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.book-map-intro,
+.book-map-legend {
+  margin: 0;
+  color: var(--author-muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.book-map-canvas {
+  position: relative;
+  width: calc(100vw - 48px);
+  max-width: 1196px;
+  min-height: 360px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid #b99b62;
+  border-radius: 3px;
+  box-shadow:
+    0 18px 34px rgba(74, 53, 24, 0.14),
+    inset 0 0 0 8px rgba(255, 246, 216, 0.24),
+    inset 0 0 34px rgba(103, 72, 28, 0.13);
+  background:
+    radial-gradient(circle at 18% 24%, rgba(151, 111, 48, 0.10) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 66%, rgba(151, 111, 48, 0.08) 0 1px, transparent 2px),
+    repeating-linear-gradient(8deg, rgba(126, 88, 35, 0.025) 0 1px, transparent 1px 5px),
+    linear-gradient(105deg, #eee0bd 0%, #f7edcf 48%, #e8d5aa 100%);
+}
+
+.book-map-canvas::before,
+.book-map-canvas::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 12px;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(111, 78, 29, 0.18), transparent 65%);
+}
+
+.book-map-canvas::before {
+  top: 0;
+}
+
+.book-map-canvas::after {
+  bottom: 0;
+  transform: rotate(180deg);
+}
+
+.book-map-svg {
+  display: block;
+  width: max(100%, 720px);
+  min-width: 720px;
+  height: auto;
+  min-height: 360px;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.book-map-svg-heading line,
+.book-map-svg-legend > line {
+  stroke: #8b6c3d;
+  stroke-width: 1;
+  opacity: 0.7;
+}
+
+.book-map-svg-heading text {
+  fill: #5d4728;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.book-map-svg-legend text {
+  fill: #5d4728;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.book-map-legend-edge {
+  stroke: #6f5a36;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.book-map-legend-starter,
+.book-map-legend-continuation,
+.book-map-legend-wip {
+  stroke: #314b39;
+  stroke-width: 1;
+}
+
+.book-map-legend-starter {
+  fill: #e69b00;
+}
+
+.book-map-legend-continuation {
+  fill: #fff4bc;
+}
+
+.book-map-legend-wip {
+  fill: #fff4bc;
+  stroke-dasharray: 3 2;
+  opacity: 0.55;
+}
+
+.book-map-edge {
+  fill: none;
+  stroke: #6f5a36;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+
+.book-map-node circle {
+  stroke-width: 2;
+  filter: drop-shadow(0 6px 8px rgba(17, 19, 17, 0.08));
+}
+
+.book-map-node-title {
+  fill: var(--author-text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.book-map-node-link {
+  cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 160ms ease;
+}
+
+.book-map-node-link:hover,
+.book-map-node-link:focus-visible {
+  transform: scale(1.04);
+}
+
+.book-map-node-link circle {
+  transition:
+    stroke 160ms ease,
+    stroke-width 160ms ease,
+    filter 160ms ease;
+}
+
+.book-map-node-link:hover circle,
+.book-map-node-link:focus-visible circle {
+  stroke: var(--author-accent-dark);
+  stroke-width: 5;
+  filter: drop-shadow(0 10px 15px rgba(17, 19, 17, 0.2));
+}
+
+.book-map-node.is-wip {
+  opacity: 0.52;
+}
+
+.book-map-node.is-wip circle {
+  stroke-dasharray: 5 5;
+}
+
+.book-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.book-map-legend-line {
+  display: inline-block;
+  width: 30px;
+  border-top: 2px solid #6f5a36;
+}
+
+.book-map-legend-node {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border: 2px dashed var(--author-accent-dark);
+  border-radius: 50%;
+  opacity: 0.55;
+}
+
+.book-map-legend-swatch {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border: 1px solid #314b39;
+  border-radius: 50%;
+}
+
+.book-map-legend-swatch.starter {
+  background: #e69b00;
+}
+
+.book-map-legend-swatch.continuation {
+  background: #fff4bc;
+}
+
+.book-list-shell > h2 {
   margin: 0;
   color: var(--author-text);
   font-size: clamp(1.5rem, 3vw, 2.2rem);
   font-weight: 500;
 }
 
+.book-group h2 {
+  margin: 0;
+  color: var(--author-text);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 500;
+  line-height: 1.12;
+}
+
 .book-group {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
+}
+
+.book-group + .book-group {
+  border-top: 1px solid var(--author-line);
+  padding-top: 28px;
 }
 
 .book-list {
